@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../../../features/auth/presentation/pages/login_page.dart';
+import '../../../../features/onboarding/view/onboarding_page.dart';
 
 class SplashPage extends StatefulWidget {
   const SplashPage({super.key});
@@ -23,7 +23,7 @@ class _SplashPageState extends State<SplashPage> {
     if (mounted) {
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) => const LoginPage()),
+        MaterialPageRoute(builder: (context) => const OnboardingPage()),
       );
     }
   }
@@ -39,26 +39,26 @@ class _SplashPageState extends State<SplashPage> {
           children: [
             // Using a simple icon for the splash logo
             const Icon(Icons.school, size: 100, color: Colors.white),
-            const SizedBox(height: 24),
+            const SizedBox(height: 14),
             const Text(
               'Study Planner',
               style: TextStyle(
-                fontSize: 32,
-                fontWeight: FontWeight.bold,
+                fontSize: 24,
+                fontWeight: FontWeight.w500,
                 color: Colors.white,
                 letterSpacing: 1.5,
               ),
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 10),
             Text(
               'Plan • Study • Excel',
               style: TextStyle(
-                fontSize: 16,
+                fontSize: 14,
                 fontStyle: FontStyle.italic,
                 color: Colors.white.withOpacity(0.8),
               ),
             ),
-            const SizedBox(height: 48),
+            const SizedBox(height: 26),
             // Loading indicator
             const CircularProgressIndicator(
               valueColor: AlwaysStoppedAnimation<Color>(Colors.white),

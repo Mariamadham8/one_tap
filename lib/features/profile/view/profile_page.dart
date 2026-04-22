@@ -6,37 +6,31 @@ class ProfilePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
-      padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 16),
+      padding: const EdgeInsets.only(left: 12, right: 12, top: 18, bottom: 120),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           // User Avatar & Info
           const CircleAvatar(
-            radius: 50,
+            radius: 36,
             backgroundColor: Colors.blueAccent,
             child: Icon(Icons.person, size: 50, color: Colors.white),
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 10),
           const Text(
             'Ahmed Elkhamisy',
-            style: TextStyle(
-              fontSize: 22,
-              fontWeight: FontWeight.bold,
-            ),
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
           ),
           const SizedBox(height: 4),
           Text(
             'ahmed@example.com',
-            style: TextStyle(
-              fontSize: 16,
-              color: Colors.grey.shade600,
-            ),
+            style: TextStyle(fontSize: 14, color: Colors.grey.shade600),
           ),
-          const SizedBox(height: 40),
+          const SizedBox(height: 22),
 
           // Settings Section
           _buildSectionHeader('General Settings'),
-          const SizedBox(height: 16),
+          const SizedBox(height: 10),
           _buildSettingsCard(
             children: [
               _buildSettingsTile(
@@ -57,17 +51,17 @@ class ProfilePage extends StatelessWidget {
                 icon: Icons.language,
                 title: 'Language',
                 trailing: const Text(
-                  'English', 
-                  style: TextStyle(color: Colors.grey, fontSize: 14),
+                  'English',
+                  style: TextStyle(color: Colors.grey, fontSize: 11),
                 ),
                 onTap: () {},
               ),
             ],
           ),
-          
-          const SizedBox(height: 32),
+
+          const SizedBox(height: 18),
           _buildSectionHeader('Preferences'),
-          const SizedBox(height: 16),
+          const SizedBox(height: 10),
           _buildSettingsCard(
             children: [
               _buildSettingsTile(
@@ -85,9 +79,9 @@ class ProfilePage extends StatelessWidget {
             ],
           ),
 
-          const SizedBox(height: 32),
+          const SizedBox(height: 18),
           _buildSectionHeader('About'),
-          const SizedBox(height: 16),
+          const SizedBox(height: 10),
           _buildSettingsCard(
             children: [
               _buildSettingsTile(
@@ -104,37 +98,37 @@ class ProfilePage extends StatelessWidget {
             ],
           ),
 
-          const SizedBox(height: 48),
-          
+          const SizedBox(height: 26),
+
           // Logout Button
           SizedBox(
             width: double.infinity,
-            height: 56,
+            height: 42,
             child: OutlinedButton.icon(
               onPressed: () {
                 // TODO: Implement Logout Logic
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Logging out...')),
-                );
+                ScaffoldMessenger.of(
+                  context,
+                ).showSnackBar(const SnackBar(content: Text('Logging out...')));
               },
               icon: const Icon(Icons.logout, color: Colors.redAccent),
               label: const Text(
                 'Logout',
                 style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
+                  fontSize: 14,
+                  fontWeight: FontWeight.w500,
                   color: Colors.redAccent,
                 ),
               ),
               style: OutlinedButton.styleFrom(
                 side: const BorderSide(color: Colors.redAccent, width: 2),
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(16),
+                  borderRadius: BorderRadius.circular(12),
                 ),
               ),
             ),
           ),
-          const SizedBox(height: 32),
+          const SizedBox(height: 18),
         ],
       ),
     );
@@ -146,8 +140,8 @@ class ProfilePage extends StatelessWidget {
       child: Text(
         title,
         style: const TextStyle(
-          fontSize: 14,
-          fontWeight: FontWeight.bold,
+          fontSize: 11,
+          fontWeight: FontWeight.w500,
           color: Colors.blueAccent,
           letterSpacing: 1.2,
         ),
@@ -159,7 +153,7 @@ class ProfilePage extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(14),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withOpacity(0.04),
@@ -169,10 +163,8 @@ class ProfilePage extends StatelessWidget {
         ],
       ),
       child: ClipRRect(
-        borderRadius: BorderRadius.circular(20),
-        child: Column(
-          children: children,
-        ),
+        borderRadius: BorderRadius.circular(14),
+        child: Column(children: children),
       ),
     );
   }
@@ -188,24 +180,28 @@ class ProfilePage extends StatelessWidget {
       child: InkWell(
         onTap: onTap,
         child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 20.0),
+          padding: const EdgeInsets.symmetric(vertical: 12.0, horizontal: 14.0),
           child: Row(
             children: [
               Icon(icon, color: Colors.grey.shade700, size: 26),
-              const SizedBox(width: 16),
+              const SizedBox(width: 10),
               Expanded(
                 child: Text(
                   title,
                   style: const TextStyle(
-                    fontWeight: FontWeight.w600,
-                    fontSize: 16,
+                    fontWeight: FontWeight.w500,
+                    fontSize: 14,
                   ),
                 ),
               ),
-              if (trailing != null) 
+              if (trailing != null)
                 trailing
-              else 
-                const Icon(Icons.arrow_forward_ios, size: 16, color: Colors.grey),
+              else
+                const Icon(
+                  Icons.arrow_forward_ios,
+                  size: 16,
+                  color: Colors.grey,
+                ),
             ],
           ),
         ),
