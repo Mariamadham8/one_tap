@@ -95,11 +95,11 @@ class _OnboardingPageState extends State<OnboardingPage> {
                   Row(
                     children: [
                       Container(
-                        width: 32,
-                        height: 32,
+                        width: 28,
+                        height: 28,
                         decoration: BoxDecoration(
                           color: const Color(0xFF60A5FA),
-                          borderRadius: BorderRadius.circular(10),
+                          borderRadius: BorderRadius.circular(8),
                         ),
                         child: const Center(
                           child: Text(
@@ -107,7 +107,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
                             style: TextStyle(
                               color: Colors.white,
                               fontWeight: FontWeight.bold,
-                              fontSize: 16,
+                              fontSize: 14,
                             ),
                           ),
                         ),
@@ -116,7 +116,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
                       const Text(
                         'Study Mate',
                         style: TextStyle(
-                          fontSize: 16,
+                          fontSize: 14,
                           fontWeight: FontWeight.w600,
                           color: Color(0xFF0F172A),
                         ),
@@ -128,11 +128,13 @@ class _OnboardingPageState extends State<OnboardingPage> {
                       onPressed: _navigateToLogin,
                       style: TextButton.styleFrom(
                         foregroundColor: const Color(0xFF64748B),
+                        padding: EdgeInsets.zero,
+                        minimumSize: const Size(0, 0),
                       ),
                       child: const Text(
                         'Skip',
                         style: TextStyle(
-                          fontSize: 15,
+                          fontSize: 13,
                           fontWeight: FontWeight.w500,
                         ),
                       ),
@@ -169,19 +171,18 @@ class _OnboardingPageState extends State<OnboardingPage> {
                                 // Image Placeholder container (Replace this with actual Image later)
                                 Container(
                                   width: double.infinity,
-                                  height:
-                                      300, // Adjusted height to look consistent
+                                  height: 240, // Adjusted height
                                   decoration: BoxDecoration(
                                     color: Colors.white,
-                                    borderRadius: BorderRadius.circular(40),
+                                    borderRadius: BorderRadius.circular(24),
                                     boxShadow: [
                                       BoxShadow(
                                         color: const Color(
                                           0xFF4C9EEB,
                                         ).withValues(alpha: 0.05),
-                                        blurRadius: 40,
-                                        spreadRadius: 10,
-                                        offset: const Offset(0, 10),
+                                        blurRadius: 24,
+                                        spreadRadius: 8,
+                                        offset: const Offset(0, 8),
                                       ),
                                     ],
                                   ),
@@ -189,26 +190,29 @@ class _OnboardingPageState extends State<OnboardingPage> {
                                     child: Text(
                                       'Image Placeholder\n(Add your asset here)',
                                       textAlign: TextAlign.center,
-                                      style: TextStyle(color: Colors.grey),
+                                      style: TextStyle(
+                                        color: Colors.grey,
+                                        fontSize: 13,
+                                      ),
                                     ),
                                   ), // Replace child: ... with Image.asset(_contents[index].imagePath)
                                 ),
-                                const SizedBox(height: 50),
+                                const SizedBox(height: 32),
 
                                 Text(
                                   _contents[index].title,
                                   style: const TextStyle(
-                                    fontSize: 28,
+                                    fontSize: 22,
                                     fontWeight: FontWeight.bold,
                                     color: Color(0xFF0F172A),
                                   ),
                                   textAlign: TextAlign.center,
                                 ),
-                                const SizedBox(height: 16),
+                                const SizedBox(height: 12),
                                 Text(
                                   _contents[index].subtitle,
                                   style: const TextStyle(
-                                    fontSize: 15,
+                                    fontSize: 13,
                                     color: Color(0xFF64748B),
                                     height: 1.5,
                                   ),
@@ -241,18 +245,18 @@ class _OnboardingPageState extends State<OnboardingPage> {
                       (index) => AnimatedContainer(
                         duration: const Duration(milliseconds: 300),
                         margin: const EdgeInsets.symmetric(horizontal: 4),
-                        height: 8,
-                        width: _currentIndex == index ? 24 : 8,
+                        height: 6,
+                        width: _currentIndex == index ? 18 : 6,
                         decoration: BoxDecoration(
                           color: _currentIndex == index
                               ? const Color(0xFF4C9EEB)
                               : const Color(0xFFE2E8F0),
-                          borderRadius: BorderRadius.circular(4),
+                          borderRadius: BorderRadius.circular(3),
                         ),
                       ),
                     ),
                   ),
-                  const SizedBox(height: 40),
+                  const SizedBox(height: 24),
 
                   // Buttons Row
                   Row(
@@ -267,22 +271,22 @@ class _OnboardingPageState extends State<OnboardingPage> {
                               backgroundColor: const Color(
                                 0xFFF1F5F9,
                               ), // Light Gray/Blue
-                              padding: const EdgeInsets.symmetric(vertical: 20),
+                              padding: const EdgeInsets.symmetric(vertical: 14),
                               shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(24),
+                                borderRadius: BorderRadius.circular(16),
                               ),
                             ),
                             child: const Text(
                               'Back',
                               style: TextStyle(
-                                fontSize: 16,
+                                fontSize: 14,
                                 fontWeight: FontWeight.w600,
                                 color: Color(0xFF64748B),
                               ),
                             ),
                           ),
                         ),
-                        const SizedBox(width: 16),
+                        const SizedBox(width: 12),
                       ],
                       // Show Next / Get Started button
                       Expanded(
@@ -292,10 +296,10 @@ class _OnboardingPageState extends State<OnboardingPage> {
                           style: ElevatedButton.styleFrom(
                             backgroundColor: const Color(0xFF60A5FA),
                             foregroundColor: Colors.white,
-                            padding: const EdgeInsets.symmetric(vertical: 20),
+                            padding: const EdgeInsets.symmetric(vertical: 14),
                             elevation: 0,
                             shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(24),
+                              borderRadius: BorderRadius.circular(16),
                             ),
                           ),
                           child: Row(
@@ -306,12 +310,12 @@ class _OnboardingPageState extends State<OnboardingPage> {
                                     ? 'Get Started'
                                     : 'Next',
                                 style: const TextStyle(
-                                  fontSize: 16,
+                                  fontSize: 14,
                                   fontWeight: FontWeight.w600,
                                 ),
                               ),
                               const SizedBox(width: 8),
-                              const Icon(Icons.arrow_forward, size: 20),
+                              const Icon(Icons.arrow_forward, size: 18),
                             ],
                           ),
                         ),
