@@ -1,0 +1,46 @@
+{
+  "project_info": {
+    "project_number": "79411404755",
+    "project_id": "one-tap-ap",
+    "storage_bucket": "one-tap-ap.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:79411404755:android:bd1d7f3dc1a188e4449926",
+        "android_client_info": {
+          "package_name": "com.example.one_tap"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "79411404755-n627tf5taunasjng90fie35mcts6f2ub.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDK8goK3X7jd9rG6hxggBiDmQ-Wk9t8I1A"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "79411404755-n627tf5taunasjng90fie35mcts6f2ub.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "79411404755-6nsgv6gbhqt2vnbfes8flne2hf95mt47.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.oneTap"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
