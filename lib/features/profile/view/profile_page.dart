@@ -174,7 +174,7 @@ class _ProfilePageState extends State<ProfilePage> {
                     onChanged: (value) {
                       // TODO: Toggle Dark Mode
                     },
-                    activeColor: const Color(0xFF60A5FA),
+                    activeThumbColor: const Color(0xFF60A5FA),
                     activeTrackColor: const Color(0xFFEBF4FC),
                     inactiveThumbColor: Colors.white,
                     inactiveTrackColor: const Color(0xFFE2E8F0),
@@ -298,7 +298,7 @@ class _ProfilePageState extends State<ProfilePage> {
                 ),
               ),
             ),
-            if (trailing != null) trailing,
+            ?trailing,
             if (showChevron)
               const Icon(
                 Icons.chevron_right,

@@ -89,13 +89,26 @@ class _TasksViewState extends State<TasksView> {
           ),
           const SizedBox(height: 10),
 
-          ListView.builder(
+          ReorderableListView.builder(
             shrinkWrap: true,
+            buildDefaultDragHandles: false,
             physics: const NeverScrollableScrollPhysics(),
             itemCount: globalTasks.length,
+            onReorder: (int oldIndex, int newIndex) {
+              setState(() {
+                if (oldIndex < newIndex) {
+                  newIndex -= 1;
+                }
+                final TaskModel item = globalTasks.removeAt(oldIndex);
+                globalTasks.insert(newIndex, item);
+              });
+            },
             itemBuilder: (context, index) {
               final task = globalTasks[index];
-              return _buildTaskCard(task, index);
+              return Container(
+                key: ObjectKey(task),
+                child: _buildTaskCard(task, index),
+              );
             },
           ),
         ],
@@ -105,132 +118,181 @@ class _TasksViewState extends State<TasksView> {
 
   Widget _buildTaskCard(TaskModel task, int index) {
     bool isDone = task.isDone;
-    return Container(
-      margin: const EdgeInsets.only(bottom: 10),
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.02),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: Row(
-        children: [
-          GestureDetector(
-            onTap: () {
-              setState(() {
-                task.isDone = !isDone;
-              });
-            },
-            child: Icon(
-              isDone
-                  ? Icons.check_circle_outline
-                  : Icons.radio_button_unchecked,
-              color: isDone
-                  ? const Color(0xFF4C9EEB).withOpacity(0.5)
-                  : const Color(0xFF1E293B).withOpacity(0.5),
-              size: 20,
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTap: () async {
+        final result = await showDialog(
+          context: context,
+          builder: (context) => AddTaskPage(taskToEdit: task),
+        );
+
+        if (result == 'delete') {
+          setState(() {
+            globalTasks.removeAt(index);
+          });
+        } else if (result != null && result is TaskModel) {
+          setState(() {
+            globalTasks[index] = TaskModel(
+              title: result.title,
+              subject: result.subject,
+              durationMinutes: result.durationMinutes,
+              isDone: task.isDone,
+            );
+          });
+        }
+      },
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 10),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(12),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.02),
+              blurRadius: 8,
+              offset: const Offset(0, 2),
             ),
-          ),
-          const SizedBox(width: 10),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  task.title,
-                  style: TextStyle(
-                    fontSize: 11,
-                    fontWeight: FontWeight.w500,
-                    color: isDone
-                        ? const Color(0xFF1E293B).withOpacity(0.4)
-                        : const Color(0xFF1E293B),
-                    decoration: isDone ? TextDecoration.lineThrough : null,
-                  ),
+          ],
+        ),
+        child: Row(
+          children: [
+            ReorderableDragStartListener(
+              index: index,
+              child: const Padding(
+                padding: EdgeInsets.only(right: 10.0),
+                child: Icon(
+                  Icons.drag_indicator,
+                  color: Color(0xFFCBD5E1),
+                  size: 20,
                 ),
-                const SizedBox(height: 4),
-                Row(
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 4,
-                        vertical: 4,
-                      ),
-                      decoration: BoxDecoration(
-                        color: isDone
-                            ? task.subject.color.withOpacity(0.4)
-                            : task.subject.color,
-                        borderRadius: BorderRadius.circular(4),
-                      ),
-                      child: Text(
-                        task.subject.title,
-                        style: TextStyle(
-                          fontSize: 8,
-                          fontWeight: FontWeight.w500,
+              ),
+            ),
+            GestureDetector(
+              onTap: () {
+                setState(() {
+                  task.isDone = !isDone;
+                });
+              },
+              child: Icon(
+                isDone
+                    ? Icons.check_circle_outline
+                    : Icons.radio_button_unchecked,
+                color: isDone
+                    ? const Color(0xFF4C9EEB).withOpacity(0.5)
+                    : const Color(0xFF1E293B).withOpacity(0.5),
+                size: 20,
+              ),
+            ),
+            const SizedBox(width: 10),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    task.title,
+                    style: TextStyle(
+                      fontSize: 11,
+                      fontWeight: FontWeight.w500,
+                      color: isDone
+                          ? const Color(0xFF1E293B).withOpacity(0.4)
+                          : const Color(0xFF1E293B),
+                      decoration: isDone ? TextDecoration.lineThrough : null,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 4,
+                          vertical: 4,
+                        ),
+                        decoration: BoxDecoration(
                           color: isDone
-                              ? const Color(0xFF1E293B).withOpacity(0.4)
-                              : const Color(0xFF1E293B).withOpacity(0.7),
+                              ? task.subject.color.withOpacity(0.4)
+                              : task.subject.color,
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                        child: Text(
+                          task.subject.title,
+                          style: TextStyle(
+                            fontSize: 8,
+                            fontWeight: FontWeight.w500,
+                            color: isDone
+                                ? const Color(0xFF1E293B).withOpacity(0.4)
+                                : const Color(0xFF1E293B).withOpacity(0.7),
+                          ),
                         ),
                       ),
-                    ),
-                    const SizedBox(width: 4),
-                    Icon(
-                      Icons.access_time,
-                      size: 12,
-                      color: isDone
-                          ? const Color(0xFF1E293B).withOpacity(0.3)
-                          : const Color(0xFF1E293B).withOpacity(0.4),
-                    ),
-                    const SizedBox(width: 4),
-                    Text(
-                      "${task.durationMinutes} min",
-                      style: TextStyle(
-                        fontSize: 9,
+                      const SizedBox(width: 4),
+                      Icon(
+                        Icons.access_time,
+                        size: 12,
                         color: isDone
                             ? const Color(0xFF1E293B).withOpacity(0.3)
-                            : const Color(0xFF1E293B).withOpacity(0.5),
-                        fontWeight: FontWeight.w400,
+                            : const Color(0xFF1E293B).withOpacity(0.4),
                       ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-          if (!isDone)
-            Container(
-              decoration: const BoxDecoration(
-                color: Color(0xFF4C9EEB),
-                shape: BoxShape.circle,
+                      const SizedBox(width: 4),
+                      Text(
+                        "${task.durationMinutes} min",
+                        style: TextStyle(
+                          fontSize: 9,
+                          color: isDone
+                              ? const Color(0xFF1E293B).withOpacity(0.3)
+                              : const Color(0xFF1E293B).withOpacity(0.5),
+                          fontWeight: FontWeight.w400,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
               ),
-              child: IconButton(
+            ),
+            if (!isDone)
+              Container(
+                decoration: const BoxDecoration(
+                  color: Color(0xFF4C9EEB),
+                  shape: BoxShape.circle,
+                ),
+                child: IconButton(
+                  icon: const Icon(
+                    Icons.play_arrow,
+                    color: Colors.white,
+                    size: 16,
+                  ),
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => TaskTimerPage(
+                          taskTitle: task.title,
+                          durationMinutes: task.durationMinutes,
+                        ),
+                      ),
+                    );
+                  },
+                  padding: const EdgeInsets.all(6),
+                  constraints: const BoxConstraints(),
+                ),
+              )
+            else
+              IconButton(
                 icon: const Icon(
-                  Icons.play_arrow,
-                  color: Colors.white,
-                  size: 16,
+                  Icons.delete_outline,
+                  color: Colors.red,
+                  size: 20,
                 ),
                 onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) =>
-                          TaskTimerPage(
-                            taskTitle: task.title,
-                            durationMinutes: task.durationMinutes,
-                          ),
-                    ),
-                  );
+                  setState(() {
+                    globalTasks.removeAt(index);
+                  });
                 },
                 padding: const EdgeInsets.all(6),
                 constraints: const BoxConstraints(),
               ),
-            ),
-        ],
+          ],
+        ),
       ),
     );
   }
