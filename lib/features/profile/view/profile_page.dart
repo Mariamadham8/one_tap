@@ -1,4 +1,6 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:one_tap/features/auth/view/login_page.dart';
 import '../../../../core/models/task_model.dart'; // import globalTasks
 import '../../../../core/models/user_activity_model.dart'; // import globalUserActivity
 
@@ -188,11 +190,15 @@ class _ProfilePageState extends State<ProfilePage> {
 
           // Logout Button
           GestureDetector(
-            onTap: () {
-              // TODO: Implement Logout Logic
-              ScaffoldMessenger.of(
-                context,
-              ).showSnackBar(const SnackBar(content: Text('Logging out...')));
+            onTap: () async {
+              await FirebaseAuth.instance.signOut();
+              if (context.mounted) {
+                Navigator.pushAndRemoveUntil(
+                  context,
+                  MaterialPageRoute(builder: (context) => const LoginPage()),
+                  (route) => false,
+                );
+              }
             },
             child: Container(
               width: double.infinity,
