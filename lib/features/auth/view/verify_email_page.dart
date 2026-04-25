@@ -1,8 +1,80 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:one_tap/core/widgets/custom_snackbar.dart';
+import 'package:one_tap/features/auth/providers/auth_provider.dart';
 import '../../home/home_page.dart';
 
-class VerifyEmailPage extends StatelessWidget {
+class VerifyEmailPage extends ConsumerStatefulWidget {
   const VerifyEmailPage({super.key});
+
+  @override
+  ConsumerState<VerifyEmailPage> createState() => _VerifyEmailPageState();
+}
+
+class _VerifyEmailPageState extends ConsumerState<VerifyEmailPage> {
+  bool _isCheckingVerification = false;
+  bool _isResending = false;
+  Future<void> _checkVerification() async {
+    setState(() => _isCheckingVerification = true);
+    try {
+      await FirebaseAuth.instance.currentUser?.reload();
+
+      if (!mounted) return;
+      setState(() => _isCheckingVerification = false);
+
+      final isVerified =
+          FirebaseAuth.instance.currentUser?.emailVerified ?? false;
+
+      if (isVerified) {
+        Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(builder: (context) => const HomePage()),
+          (route) => false,
+        );
+      } else {
+        showSnackBar(
+          context,
+          'Email not verified yet. Please check your inbox.',
+          isError: true,
+        );
+      }
+    } catch (e) {
+      if (!mounted) return;
+      setState(() => _isCheckingVerification = false);
+      showSnackBar(
+        context,
+        'Something went wrong. Please try again.',
+        isError: true,
+      );
+    }
+  }
+
+  Future<void> _resendEmail() async {
+    setState(() => _isResending = true);
+
+    try {
+      final authService = ref.read(authServiceProvider);
+      await authService.sendVerifyEmail();
+
+      if (!mounted) return;
+      setState(() => _isResending = false);
+      showSnackBar(context, 'Verification email sent! Check your inbox.');
+    } on FirebaseAuthException catch (e) {
+      if (!mounted) return;
+      setState(() => _isResending = false);
+      final authService = ref.read(authServiceProvider);
+      showSnackBar(context, authService.getErrorMessage(e.code), isError: true);
+    } catch (e) {
+      if (!mounted) return;
+      setState(() => _isResending = false);
+      showSnackBar(
+        context,
+        'Something went wrong. Please try again.',
+        isError: true,
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -70,14 +142,9 @@ class VerifyEmailPage extends StatelessWidget {
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
-                  onPressed: () {
-                    // TODO: Replace with logic to check if email is verified
-                    Navigator.pushAndRemoveUntil(
-                      context,
-                      MaterialPageRoute(builder: (context) => const HomePage()),
-                      (route) => false,
-                    );
-                  },
+                  onPressed: _isCheckingVerification
+                      ? null
+                      : _checkVerification,
                   style: ElevatedButton.styleFrom(
                     padding: const EdgeInsets.symmetric(vertical: 14),
                     backgroundColor: const Color(0xFF67ADF6),
@@ -87,19 +154,29 @@ class VerifyEmailPage extends StatelessWidget {
                     ),
                     elevation: 0,
                   ),
-                  child: const Text(
-                    'I have verified',
-                    style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
-                  ),
+                  child: _isCheckingVerification
+                      ? const SizedBox(
+                          height: 20,
+                          width: 20,
+                          child: CircularProgressIndicator(
+                            color: Colors.white,
+                            strokeWidth: 2,
+                          ),
+                        )
+                      : const Text(
+                          'I have verified',
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
                 ),
               ),
               const SizedBox(height: 16),
               SizedBox(
                 width: double.infinity,
                 child: OutlinedButton(
-                  onPressed: () {
-                    // TODO: Logic to resend the verification email
-                  },
+                  onPressed: _isResending ? null : _resendEmail,
                   style: OutlinedButton.styleFrom(
                     padding: const EdgeInsets.symmetric(vertical: 14),
                     foregroundColor: const Color(0xFF67ADF6),
@@ -108,10 +185,22 @@ class VerifyEmailPage extends StatelessWidget {
                       borderRadius: BorderRadius.circular(16),
                     ),
                   ),
-                  child: const Text(
-                    'Resend Email',
-                    style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
-                  ),
+                  child: _isResending
+                      ? const SizedBox(
+                          height: 20,
+                          width: 20,
+                          child: CircularProgressIndicator(
+                            color: Color(0xFF67ADF6),
+                            strokeWidth: 2,
+                          ),
+                        )
+                      : const Text(
+                          'Resend Email',
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
                 ),
               ),
             ],
