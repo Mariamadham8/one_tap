@@ -2,6 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:one_tap/core/utils/app_validators.dart';
+import 'package:one_tap/core/models/user_activity_model.dart';
 import 'package:one_tap/core/widgets/custom_text_feild.dart';
 import 'package:one_tap/features/auth/providers/auth_provider.dart';
 import 'package:one_tap/features/auth/view/verify_email_page.dart';
@@ -40,6 +41,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
         _emailController.text.trim(),
         _passwordController.text.trim(),
       );
+      await globalUserActivity.syncWithCurrentUser();
 
       if (!mounted) return;
       setState(() => _isLoading = false);

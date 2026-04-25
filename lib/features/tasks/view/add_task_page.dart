@@ -16,6 +16,7 @@ class _AddTaskPageState extends State<AddTaskPage> {
   final TextEditingController _titleController = TextEditingController();
   SubjectModel? _selectedSubject;
   int _selectedTime = 25;
+  DateTime? _selectedDueDate;
   final List<int> _times = [20, 25, 30, 35, 40, 45];
 
   @override
@@ -23,8 +24,18 @@ class _AddTaskPageState extends State<AddTaskPage> {
     super.initState();
     if (widget.isEditMode) {
       _titleController.text = widget.taskToEdit!.title;
-      _selectedSubject = widget.taskToEdit!.subject;
+
+      final taskSubjectId = widget.taskToEdit!.subjectId;
+      if (taskSubjectId != null && taskSubjectId.isNotEmpty) {
+        final index = globalSubjects.indexWhere((s) => s.id == taskSubjectId);
+        if (index != -1) {
+          _selectedSubject = globalSubjects[index];
+        }
+      }
+
+      _selectedSubject ??= widget.taskToEdit!.subject;
       _selectedTime = widget.taskToEdit!.durationMinutes;
+      _selectedDueDate = widget.taskToEdit!.dueDate;
     } else if (globalSubjects.isNotEmpty) {
       _selectedSubject = globalSubjects.first;
     }
@@ -214,6 +225,97 @@ class _AddTaskPageState extends State<AddTaskPage> {
             ),
             const SizedBox(height: 10),
 
+            // Due date
+            const Text(
+              'Due date',
+              style: TextStyle(
+                fontSize: 11,
+                fontWeight: FontWeight.w500,
+                color: Color(0xFF1E293B),
+              ),
+            ),
+            const SizedBox(height: 6),
+            InkWell(
+              onTap: () async {
+                final initialDate = _selectedDueDate ?? DateTime.now();
+                final picked = await showDatePicker(
+                  context: context,
+                  initialDate: initialDate,
+                  firstDate: DateTime(2020),
+                  lastDate: DateTime(2100),
+                );
+
+                if (picked == null) return;
+
+                setState(() {
+                  _selectedDueDate = DateTime(
+                    picked.year,
+                    picked.month,
+                    picked.day,
+                    23,
+                    59,
+                    59,
+                  );
+                });
+              },
+              borderRadius: BorderRadius.circular(12),
+              child: Container(
+                width: double.infinity,
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 10,
+                ),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: const Color(0xFFE2E8F0)),
+                ),
+                child: Row(
+                  children: [
+                    const Icon(
+                      Icons.event_outlined,
+                      size: 16,
+                      color: Color(0xFF64748B),
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        _selectedDueDate == null
+                            ? 'No due date selected'
+                            : _formatDate(_selectedDueDate!),
+                        style: TextStyle(
+                          fontSize: 11,
+                          color: _selectedDueDate == null
+                              ? const Color(0xFF64748B)
+                              : const Color(0xFF1E293B),
+                        ),
+                      ),
+                    ),
+                    if (_selectedDueDate != null)
+                      GestureDetector(
+                        onTap: () {
+                          setState(() {
+                            _selectedDueDate = null;
+                          });
+                        },
+                        child: const Icon(
+                          Icons.close,
+                          size: 14,
+                          color: Color(0xFF64748B),
+                        ),
+                      )
+                    else
+                      const Icon(
+                        Icons.keyboard_arrow_right,
+                        size: 16,
+                        color: Color(0xFF64748B),
+                      ),
+                  ],
+                ),
+              ),
+            ),
+            const SizedBox(height: 10),
+
             // Estimated time
             Row(
               children: [
@@ -306,8 +408,10 @@ class _AddTaskPageState extends State<AddTaskPage> {
 
                       final newTask = TaskModel(
                         title: _titleController.text.trim(),
+                        subjectId: _selectedSubject!.id,
                         subject: _selectedSubject!,
                         durationMinutes: _selectedTime,
+                        dueDate: _selectedDueDate,
                       );
 
                       Navigator.pop(context, newTask);
@@ -336,5 +440,9 @@ class _AddTaskPageState extends State<AddTaskPage> {
         ),
       ),
     );
+  }
+
+  String _formatDate(DateTime date) {
+    return '${date.day}/${date.month}/${date.year}';
   }
 }

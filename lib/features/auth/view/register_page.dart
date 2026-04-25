@@ -1,5 +1,7 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:one_tap/core/models/user_activity_model.dart';
 import 'package:one_tap/core/utils/app_validators.dart';
 import 'package:one_tap/core/widgets/custom_text_feild.dart';
 import 'package:one_tap/features/auth/providers/auth_provider.dart';
@@ -34,17 +36,36 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
 
     setState(() => _isLoading = true);
 
-    final authService = ref.read(authServiceProvider);
-    await authService.register(
-      _emailController.text.trim(),
-      _passwordController.text.trim(),
-    );
+    try {
+      final authService = ref.read(authServiceProvider);
+      await authService.register(
+        _nameController.text.trim(),
+        _emailController.text.trim(),
+        _passwordController.text.trim(),
+      );
+      await globalUserActivity.syncWithCurrentUser();
 
-    if (mounted) {
-      setState(() => _isLoading = false);
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (context) => const VerifyEmailPage()),
+      if (mounted) {
+        setState(() => _isLoading = false);
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => const VerifyEmailPage()),
+        );
+      }
+    } on FirebaseAuthException catch (e) {
+      if (mounted) {
+        setState(() => _isLoading = false);
+      }
+      final authService = ref.read(authServiceProvider);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(authService.getErrorMessage(e.code))),
+      );
+    } catch (_) {
+      if (mounted) {
+        setState(() => _isLoading = false);
+      }
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Something went wrong. Please try again.')),
       );
     }
   }

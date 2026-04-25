@@ -1,4 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:one_tap/features/notifications/data/notification_service.dart';
+import 'package:one_tap/features/notifications/view/notifications_page.dart';
+import 'package:one_tap/features/subjects/data/subjects_firestore_service.dart';
+import 'package:one_tap/features/tasks/data/tasks_firestore_service.dart';
 import '../../../../core/models/subject_model.dart';
 import '../../../../core/models/task_model.dart';
 
@@ -27,14 +32,7 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFF8F9FA),
-      body: SafeArea(
-        bottom: false,
-        child: [
-          _HomeDashboardView(),
-          TasksView(),
-          const ProfilePage(),
-        ][_selectedIndex],
-      ),
+      body: SafeArea(bottom: false, child: _pages[_selectedIndex]),
       extendBody: true,
       bottomNavigationBar: SafeArea(
         child: Padding(
@@ -132,6 +130,95 @@ class _HomeDashboardView extends StatefulWidget {
 }
 
 class _HomeDashboardViewState extends State<_HomeDashboardView> {
+  final SubjectsFirestoreService _subjectsService = SubjectsFirestoreService();
+  final TasksFirestoreService _tasksService = TasksFirestoreService();
+  final NotificationService _notificationService = NotificationService();
+  bool _isLoadingSubjects = true;
+  int _unreadNotificationsCount = 0;
+
+  User? get _currentUser => FirebaseAuth.instance.currentUser;
+
+  String get _displayName {
+    final name = _currentUser?.displayName?.trim();
+    if (name != null && name.isNotEmpty) return name;
+
+    final email = _currentUser?.email?.trim();
+    if (email != null && email.isNotEmpty) return email.split('@').first;
+
+    return 'User';
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _loadSubjects();
+    _loadTasks();
+    _refreshUnreadNotificationCount();
+  }
+
+  Future<void> _loadSubjects() async {
+    try {
+      final fetchedSubjects = await _subjectsService.fetchSubjects();
+      if (!mounted) return;
+
+      setState(() {
+        globalSubjects
+          ..clear()
+          ..addAll(fetchedSubjects);
+        _isLoadingSubjects = false;
+      });
+      await _refreshUnreadNotificationCount();
+    } catch (_) {
+      if (!mounted) return;
+      setState(() {
+        _isLoadingSubjects = false;
+      });
+    }
+  }
+
+  Future<void> _addSubject(SubjectModel newSubject) async {
+    try {
+      final savedSubject = await _subjectsService.addSubject(newSubject);
+      if (!mounted) return;
+
+      setState(() {
+        globalSubjects.insert(0, savedSubject);
+      });
+    } catch (_) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Could not save subject. Please try again.'),
+        ),
+      );
+    }
+  }
+
+  Future<void> _loadTasks() async {
+    try {
+      final fetchedTasks = await _tasksService.fetchTasks();
+      if (!mounted) return;
+
+      setState(() {
+        globalTasks
+          ..clear()
+          ..addAll(fetchedTasks);
+      });
+      await _refreshUnreadNotificationCount();
+    } catch (_) {
+      // Keep local list as-is on load failure.
+    }
+  }
+
+  Future<void> _refreshUnreadNotificationCount() async {
+    final notifications = await _notificationService.fetchNotifications();
+    if (!mounted) return;
+
+    setState(() {
+      _unreadNotificationsCount = notifications.where((n) => !n.isRead).length;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     final int totalTasks = globalTasks.length;
@@ -176,9 +263,9 @@ class _HomeDashboardViewState extends State<_HomeDashboardView> {
                     ),
                   ),
                   const SizedBox(height: 4),
-                  const Text(
-                    'Mariem 👋',
-                    style: TextStyle(
+                  Text(
+                    '$_displayName 👋',
+                    style: const TextStyle(
                       fontSize: 20,
                       fontWeight: FontWeight.w500,
                       color: Color(0xFF1E293B),
@@ -197,10 +284,53 @@ class _HomeDashboardViewState extends State<_HomeDashboardView> {
                     ),
                   ],
                 ),
-                child: IconButton(
-                  icon: const Icon(Icons.notifications_none_outlined),
-                  color: const Color(0xFF4C9EEB),
-                  onPressed: () {},
+                child: Stack(
+                  clipBehavior: Clip.none,
+                  children: [
+                    IconButton(
+                      icon: const Icon(Icons.notifications_none_outlined),
+                      color: const Color(0xFF4C9EEB),
+                      onPressed: () async {
+                        await Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const NotificationsPage(),
+                          ),
+                        );
+                        await _refreshUnreadNotificationCount();
+                      },
+                    ),
+                    if (_unreadNotificationsCount > 0)
+                      Positioned(
+                        right: 6,
+                        top: 6,
+                        child: Container(
+                          constraints: const BoxConstraints(
+                            minWidth: 18,
+                            minHeight: 18,
+                          ),
+                          padding: const EdgeInsets.symmetric(horizontal: 5),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFE53935),
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(color: Colors.white, width: 1.5),
+                          ),
+                          child: Center(
+                            child: Text(
+                              _unreadNotificationsCount > 9
+                                  ? '9+'
+                                  : '$_unreadNotificationsCount',
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 10,
+                                fontWeight: FontWeight.bold,
+                                height: 1.1,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                  ],
                 ),
               ),
             ],
@@ -384,9 +514,7 @@ class _HomeDashboardViewState extends State<_HomeDashboardView> {
                     builder: (context) => const AddSubjectPage(),
                   );
                   if (newSubject != null && newSubject is SubjectModel) {
-                    setState(() {
-                      globalSubjects.insert(0, newSubject);
-                    });
+                    await _addSubject(newSubject);
                   }
                 },
                 borderRadius: BorderRadius.circular(14),
@@ -434,25 +562,33 @@ class _HomeDashboardViewState extends State<_HomeDashboardView> {
                   ),
                 ),
               ),
-              ...globalSubjects.map((s) {
-                final subjectTasks = globalTasks
-                    .where((t) => t.subject.title == s.title)
-                    .toList();
-                final completedCount = subjectTasks
-                    .where((t) => t.isDone)
-                    .length;
-                final computedProgress = subjectTasks.isEmpty
-                    ? 0.0
-                    : (completedCount / subjectTasks.length);
-                return _buildSubjectCard(
-                  context: context,
-                  title: s.title,
-                  taskCount: '${subjectTasks.length} tasks',
-                  progress: computedProgress,
-                  emoji: s.emoji,
-                  color: s.color,
-                );
-              }),
+              if (_isLoadingSubjects)
+                const Center(child: CircularProgressIndicator())
+              else
+                ...globalSubjects.map((s) {
+                  final subjectTasks = globalTasks
+                      .where(
+                        (t) => s.id != null
+                            ? t.subjectId == s.id
+                            : t.subject.title == s.title,
+                      )
+                      .toList();
+                  final completedCount = subjectTasks
+                      .where((t) => t.isDone)
+                      .length;
+                  final computedProgress = subjectTasks.isEmpty
+                      ? 0.0
+                      : (completedCount / subjectTasks.length);
+                  return _buildSubjectCard(
+                    context: context,
+                    subjectId: s.id,
+                    title: s.title,
+                    taskCount: '${subjectTasks.length} tasks',
+                    progress: computedProgress,
+                    emoji: s.emoji,
+                    color: s.color,
+                  );
+                }),
             ],
           ),
           const SizedBox(height: 14),
@@ -463,6 +599,7 @@ class _HomeDashboardViewState extends State<_HomeDashboardView> {
 
   Widget _buildSubjectCard({
     required BuildContext context,
+    required String? subjectId,
     required String title,
     required String taskCount,
     required double progress,
@@ -475,6 +612,7 @@ class _HomeDashboardViewState extends State<_HomeDashboardView> {
           context,
           MaterialPageRoute(
             builder: (context) => SubjectDetailsPage(
+              subjectId: subjectId,
               title: title,
               emoji: emoji,
               badgeColor: color,

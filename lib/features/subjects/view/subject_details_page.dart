@@ -1,15 +1,20 @@
 import 'package:flutter/material.dart';
+import 'package:one_tap/core/models/user_activity_model.dart';
+import 'package:one_tap/features/subjects/data/subjects_firestore_service.dart';
+import 'package:one_tap/features/tasks/data/tasks_firestore_service.dart';
 import '../../../../core/models/task_model.dart';
 import '../../../../core/models/subject_model.dart';
 import 'add_subject_page.dart';
 
 class SubjectDetailsPage extends StatefulWidget {
+  final String? subjectId;
   final String title;
   final String emoji;
   final Color badgeColor;
 
   const SubjectDetailsPage({
     super.key,
+    required this.subjectId,
     required this.title,
     required this.emoji,
     required this.badgeColor,
@@ -20,6 +25,8 @@ class SubjectDetailsPage extends StatefulWidget {
 }
 
 class _SubjectDetailsPageState extends State<SubjectDetailsPage> {
+  final SubjectsFirestoreService _subjectsService = SubjectsFirestoreService();
+  final TasksFirestoreService _tasksService = TasksFirestoreService();
   late String currentTitle;
   late String currentEmoji;
   late Color currentBadgeColor;
@@ -35,7 +42,11 @@ class _SubjectDetailsPageState extends State<SubjectDetailsPage> {
   @override
   Widget build(BuildContext context) {
     final subjectTasks = globalTasks
-        .where((t) => t.subject.title == currentTitle)
+        .where(
+          (t) => widget.subjectId != null
+              ? t.subjectId == widget.subjectId
+              : t.subject.title == currentTitle,
+        )
         .toList();
     final completedTasks = subjectTasks.where((t) => t.isDone).length;
     final totalStudyMinutes = subjectTasks.fold<int>(
@@ -78,7 +89,9 @@ class _SubjectDetailsPageState extends State<SubjectDetailsPage> {
                   if (value == 'edit') {
                     // Find the actual subject object
                     final subjectIndex = globalSubjects.indexWhere(
-                      (s) => s.title == currentTitle,
+                      (s) => widget.subjectId != null
+                          ? s.id == widget.subjectId
+                          : s.title == currentTitle,
                     );
                     if (subjectIndex != -1) {
                       final currentSubject = globalSubjects[subjectIndex];
@@ -90,29 +103,45 @@ class _SubjectDetailsPageState extends State<SubjectDetailsPage> {
 
                       if (updatedSubject != null &&
                           updatedSubject is SubjectModel) {
+                        final updatedWithId = updatedSubject.copyWith(
+                          id: currentSubject.id,
+                        );
+
+                        await _subjectsService.updateSubject(updatedWithId);
+
                         setState(() {
                           // Update subject in global array
-                          globalSubjects[subjectIndex] = updatedSubject;
+                          globalSubjects[subjectIndex] = updatedWithId;
 
                           // Update subject inside globally stored tasks
                           for (var task in globalTasks) {
-                            if (task.subject.title == currentTitle) {
-                              task.subject = updatedSubject;
+                            final isSameSubject = widget.subjectId != null
+                                ? task.subjectId == widget.subjectId
+                                : task.subject.title == currentTitle;
+
+                            if (isSameSubject) {
+                              task.subject = updatedWithId;
                             }
                           }
 
                           // Update local state
-                          currentTitle = updatedSubject.title;
-                          currentBadgeColor = updatedSubject.color;
-                          currentEmoji = updatedSubject.emoji;
+                          currentTitle = updatedWithId.title;
+                          currentBadgeColor = updatedWithId.color;
+                          currentEmoji = updatedWithId.emoji;
                         });
                       }
                     }
                   } else if (value == 'delete') {
+                    if (widget.subjectId != null) {
+                      await _subjectsService.deleteSubject(widget.subjectId!);
+                    }
+
                     setState(() {
                       // Remove subject
                       globalSubjects.removeWhere(
-                        (s) => s.title == currentTitle,
+                        (s) => widget.subjectId != null
+                            ? s.id == widget.subjectId
+                            : s.title == currentTitle,
                       );
                       // Optional: also remove tasks related to this subject
                       globalTasks.removeWhere(
@@ -335,10 +364,18 @@ class _SubjectDetailsPageState extends State<SubjectDetailsPage> {
                 (t) => Padding(
                   padding: const EdgeInsets.only(bottom: 10),
                   child: GestureDetector(
-                    onTap: () {
+                    onTap: () async {
+                      final willBeDone = !t.isDone;
+                      final updatedTask = t.copyWith(isDone: willBeDone);
+                      await _tasksService.updateTask(updatedTask);
+
                       setState(() {
-                        t.isDone = !t.isDone;
+                        t.isDone = willBeDone;
                       });
+
+                      if (willBeDone) {
+                        await globalUserActivity.logActivity(DateTime.now());
+                      }
                     },
                     child: _buildTaskItem(
                       title: t.title,

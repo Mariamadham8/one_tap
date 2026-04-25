@@ -1,6 +1,8 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:one_tap/features/auth/view/login_page.dart';
+import 'package:one_tap/features/profile/view/contact_us/contact_us_view.dart';
+import 'package:one_tap/features/profile/view/privacy_policy_view.dart';
 import '../../../../core/models/task_model.dart'; // import globalTasks
 import '../../../../core/models/user_activity_model.dart'; // import globalUserActivity
 
@@ -12,6 +14,8 @@ class ProfilePage extends StatefulWidget {
 }
 
 class _ProfilePageState extends State<ProfilePage> {
+  User? get _currentUser => FirebaseAuth.instance.currentUser;
+
   int get completedTasksCount {
     return globalTasks.where((task) => task.isDone).length;
   }
@@ -29,9 +33,25 @@ class _ProfilePageState extends State<ProfilePage> {
     return '${hours}h ${minutes}m';
   }
 
-  // TODO: Replace with actual streak calculation logic connecting to Firebase/Local Storage later.
   int get dayStreak {
     return globalUserActivity.calculateStreak();
+  }
+
+  String get _displayName {
+    final name = _currentUser?.displayName?.trim();
+    if (name != null && name.isNotEmpty) return name;
+
+    final email = _currentUser?.email?.trim();
+    if (email != null && email.isNotEmpty) return email.split('@').first;
+
+    return 'User';
+  }
+
+  String get _displayEmail {
+    final email = _currentUser?.email?.trim();
+    if (email != null && email.isNotEmpty) return email;
+
+    return 'No email available';
   }
 
   @override
@@ -88,19 +108,22 @@ class _ProfilePageState extends State<ProfilePage> {
                 const SizedBox(width: 16),
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
-                  children: const [
+                  children: [
                     Text(
-                      'Mariem',
-                      style: TextStyle(
+                      _displayName,
+                      style: const TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.bold,
                         color: Color(0xFF0F172A),
                       ),
                     ),
-                    SizedBox(height: 4),
+                    const SizedBox(height: 4),
                     Text(
-                      'mariem@studymate.app',
-                      style: TextStyle(fontSize: 12, color: Color(0xFF64748B)),
+                      _displayEmail,
+                      style: const TextStyle(
+                        fontSize: 12,
+                        color: Color(0xFF64748B),
+                      ),
                     ),
                   ],
                 ),
@@ -182,6 +205,44 @@ class _ProfilePageState extends State<ProfilePage> {
                     inactiveTrackColor: const Color(0xFFE2E8F0),
                   ),
                   onTap: () {},
+                ),
+                Divider(
+                  height: 1,
+                  color: Colors.grey.withOpacity(0.1),
+                  indent: 56,
+                  endIndent: 16,
+                ),
+                _buildSettingsTile(
+                  icon: Icons.contact_support_outlined,
+                  title: 'Contact Us',
+                  showChevron: true,
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const ContactUsView(),
+                      ),
+                    );
+                  },
+                ),
+                Divider(
+                  height: 1,
+                  color: Colors.grey.withOpacity(0.1),
+                  indent: 56,
+                  endIndent: 16,
+                ),
+                _buildSettingsTile(
+                  icon: Icons.privacy_tip_outlined,
+                  title: 'Privacy Policy',
+                  showChevron: true,
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const PrivacyPolicyView(),
+                      ),
+                    );
+                  },
                 ),
               ],
             ),

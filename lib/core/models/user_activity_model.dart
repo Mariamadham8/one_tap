@@ -1,31 +1,41 @@
-class UserActivity {
-  // Set to store unique days the user was active
-  final Set<DateTime> activeDays = {};
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-  // Log activity and normalize the date to ignore time
-  void logActivity(DateTime date) {
-    activeDays.add(DateTime(date.year, date.month, date.day));
+class UserActivity {
+  Set<DateTime> _activeDays = {};
+  String? _storageKey;
+  bool _isLoaded = false;
+
+  Future<void> init() async {
+    await _load(forceReload: true);
   }
 
-  // Calculate the current day streak
+  Future<void> syncWithCurrentUser() async {
+    await _load(forceReload: true);
+  }
+
+  Future<void> logActivity(DateTime date) async {
+    await _load();
+
+    final normalizedDate = _normalize(date);
+    if (_activeDays.add(normalizedDate)) {
+      await _save();
+    }
+  }
+
   int calculateStreak() {
-    if (activeDays.isEmpty) return 0;
+    if (!_isLoaded || _activeDays.isEmpty) return 0;
 
-    final today = DateTime.now();
-    final normalizedToday = DateTime(today.year, today.month, today.day);
+    final normalizedToday = _normalize(DateTime.now());
+    final sortedDays = _activeDays.toList()..sort((a, b) => b.compareTo(a));
 
-    final List<DateTime> sortedDays = activeDays.toList()
-      ..sort((a, b) => b.compareTo(a));
-
-    DateTime lastActiveDate = sortedDays.first;
-
-    // If the last active day is older than yesterday, the streak is broken
+    final lastActiveDate = sortedDays.first;
     if (normalizedToday.difference(lastActiveDate).inDays > 1) {
       return 0;
     }
 
-    int streak = 1;
-    for (int i = 0; i < sortedDays.length - 1; i++) {
+    var streak = 1;
+    for (var i = 0; i < sortedDays.length - 1; i++) {
       final diff = sortedDays[i].difference(sortedDays[i + 1]).inDays;
       if (diff == 1) {
         streak++;
@@ -33,15 +43,46 @@ class UserActivity {
         break;
       }
     }
+
     return streak;
+  }
+
+  DateTime _normalize(DateTime date) {
+    return DateTime(date.year, date.month, date.day);
+  }
+
+  String _buildStorageKey() {
+    final userId = FirebaseAuth.instance.currentUser?.uid;
+    return 'user_activity_${userId ?? 'guest'}';
+  }
+
+  Future<void> _load({bool forceReload = false}) async {
+    final currentStorageKey = _buildStorageKey();
+    if (!forceReload && _isLoaded && _storageKey == currentStorageKey) {
+      return;
+    }
+
+    final prefs = await SharedPreferences.getInstance();
+    final storedValues = prefs.getStringList(currentStorageKey) ?? const [];
+
+    _storageKey = currentStorageKey;
+    _activeDays = storedValues.map(DateTime.parse).map(_normalize).toSet();
+    _isLoaded = true;
+  }
+
+  Future<void> _save() async {
+    final storageKey = _storageKey;
+    if (storageKey == null) return;
+
+    final prefs = await SharedPreferences.getInstance();
+    final serializedDays = _activeDays.toList()
+      ..sort((a, b) => a.compareTo(b));
+
+    await prefs.setStringList(
+      storageKey,
+      serializedDays.map((day) => day.toIso8601String()).toList(),
+    );
   }
 }
 
-// Global instance to simulate database/activity logs for now
-final UserActivity globalUserActivity = UserActivity()
-  // Adding some dummy data for testing (e.g., active for the last 5 days)
-  ..logActivity(DateTime.now().subtract(const Duration(days: 4)))
-  ..logActivity(DateTime.now().subtract(const Duration(days: 3)))
-  ..logActivity(DateTime.now().subtract(const Duration(days: 2)))
-  ..logActivity(DateTime.now().subtract(const Duration(days: 1)))
-  ..logActivity(DateTime.now());
+final UserActivity globalUserActivity = UserActivity();
