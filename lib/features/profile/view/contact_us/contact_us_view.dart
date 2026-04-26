@@ -14,48 +14,59 @@ class _ContactUsViewState extends State<ContactUsView>
 
   final List<Map<String, dynamic>> team = [
     {
-      "name": "Osama Elkayyal",
-      "role": "Flutter Developer",
-      "email": "Osama.Elkayyal@gmail.com",
-      "image": "assets/team/1.jpeg",
-      "github": "https://github.com/Osama7amed04",
-      "linkedin": "https://www.linkedin.com/in/os-7k",
-      "portfolio": "https://os-7-k.web.app",
-    },
-    {
       "name": "Ahmed Elkhamisy",
       "role": "Flutter Developer",
       "email": "ahmedelkhamisy40@gmail.com",
-      "image": "assets/team/2.jpg",
+      "image": "assets/team/1.jpg",
       "github": "https://github.com/A7medElKhamisy",
       "linkedin": "https://www.linkedin.com/in/ahmed-elkhamisy",
-      "portfolio": "",
+      "portfolio": "https://portofolio-maker.vercel.app/a7medel5amisy",
     },
     {
-      "name": "Abdelrahman Eltahrany",
+      "name": "Mariam Adaham",
       "role": "Flutter Developer",
-      "email": "abdsalama2020@gmail.com",
+      "email": "",
+      "image": "",
+      "github": "",
+      "linkedin": "",
+      "portfolio": "",
+    },
+    {
+      "name": "Abdelrahman Essam",
+      "role": "Flutter Developer",
+      "email": "eabdo7425@gmail.com",
       "image": "assets/team/3.jpeg",
-      "github": "https://github.com/abdsalama",
-      "linkedin": "https://www.linkedin.com/in/abd-elrahman-el-tahrany",
+      "github": "https://github.com/abdelrahaman293",
+      "linkedin": "https://abdoessam.lovable.app/",
       "portfolio": "",
     },
     {
-      "name": "Fedaa Mohammed",
-      "role": "Embedded Engineer",
-      "email": "kanishey@gmail.com",
+      "name": "Mahmoud Mohsen",
+      "role": "Flutter Developer",
+      "email": "midokrawya@gmail.com",
       "image": "assets/team/4.jpeg",
-      "github": "https://github.com/fedokanishey",
-      "linkedin": "https://www.linkedin.com/in/fedaamohammed",
+      "github": "https://github.com/Mahmoud-Mohsen-1",
+      "linkedin": "www.linkedin.com/in/mahmoud5mohsen5",
       "portfolio": "",
     },
     {
-      "name": "Ahmed Elsharabasy",
-      "role": "Backend Nodejs Developer",
-      "email": "ahmedelsharabasy2004@gmail.com",
-      "image": "assets/team/5.HEIC",
-      "github": "https://github.com/Ahmed-Sharabasy",
-      "linkedin": "https://www.linkedin.com/in/ahmedelsharabasy",
+      "name": "Ahmed Khaled",
+      "role": "Flutter Developer",
+      "email": "Ahmedelzmar111@gmail.com",
+      "image": "assets/team/5.jpeg",
+      "github": "https://github.com/Ahmedelzmar",
+      "linkedin":
+          "https://www.linkedin.com/in/ahmed-khalid-182820388?utm_source=share_via&utm_content=profile&utm_medium=member_android",
+      "portfolio": "",
+    },
+    {
+      "name": "Mahmoud Wael",
+      "role": "Flutter Developer",
+      "email": "Mahmoodwael888@gmail.com",
+      "image": "assets/team/6.jpeg",
+      "github": "https://github.com/MahmoudwaelElbadrawy/progect",
+      "linkedin":
+          "https://www.linkedin.com/in/mahmoud-wael-2b001138a?utm_source=share_via&utm_content=profile&utm_medium=member_android",
       "portfolio": "",
     },
   ];
@@ -81,10 +92,7 @@ class _ContactUsViewState extends State<ContactUsView>
       appBar: AppBar(
         title: const Text(
           "Contact Us",
-          style: TextStyle(
-            color: Colors.white,
-            fontWeight: FontWeight.bold,
-          ),
+          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
         ),
         centerTitle: true,
         backgroundColor: const Color(0xFF4C9EEB),
@@ -145,19 +153,20 @@ class _ContactUsViewState extends State<ContactUsView>
             ...List.generate(team.length, (index) {
               final member = team[index];
 
-              final animation = Tween<Offset>(
-                begin: const Offset(1, 0),
-                end: Offset.zero,
-              ).animate(
-                CurvedAnimation(
-                  parent: _controller,
-                  curve: Interval(
-                    (index * 0.1),
-                    1.0,
-                    curve: Curves.easeOut,
-                  ),
-                ),
-              );
+              final animation =
+                  Tween<Offset>(
+                    begin: const Offset(1, 0),
+                    end: Offset.zero,
+                  ).animate(
+                    CurvedAnimation(
+                      parent: _controller,
+                      curve: Interval(
+                        (index * 0.1),
+                        1.0,
+                        curve: Curves.easeOut,
+                      ),
+                    ),
+                  );
 
               return SlideTransition(
                 position: animation,
