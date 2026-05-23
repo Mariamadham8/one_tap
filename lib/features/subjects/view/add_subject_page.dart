@@ -58,10 +58,13 @@ class _AddSubjectPageState extends State<AddSubjectPage> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
     // A Dialog widget that displays nicely centered above the screen
     return Dialog(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
-      backgroundColor: Colors.white,
+      backgroundColor: theme.colorScheme.surface,
       insetPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 18),
       child: SingleChildScrollView(
         child: Padding(
@@ -78,10 +81,10 @@ class _AddSubjectPageState extends State<AddSubjectPage> {
                     widget.subjectToEdit != null
                         ? 'Edit Subject'
                         : 'New Subject',
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 20,
                       fontWeight: FontWeight.w500,
-                      color: Color(0xFF1E293B),
+                      color: theme.textTheme.bodyLarge!.color!,
                     ),
                   ),
                   IconButton(
@@ -89,7 +92,7 @@ class _AddSubjectPageState extends State<AddSubjectPage> {
                     constraints: const BoxConstraints(),
                     icon: Icon(
                       Icons.close,
-                      color: const Color(0xFF1E293B).withOpacity(0.5),
+                      color: theme.textTheme.bodyMedium!.color!,
                       size: 24,
                     ),
                     onPressed: () => Navigator.pop(context),
@@ -102,7 +105,7 @@ class _AddSubjectPageState extends State<AddSubjectPage> {
               Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: const Color(0xFFE8F3FD),
+                  color: colorScheme.primary.withValues(alpha: 0.05),
                   borderRadius: BorderRadius.circular(18),
                 ),
                 child: Row(
@@ -113,7 +116,7 @@ class _AddSubjectPageState extends State<AddSubjectPage> {
                         color: _colors[_selectedColorIndex],
                         borderRadius: BorderRadius.circular(12),
                         border: Border.all(
-                          color: const Color(0xFF1E293B),
+                          color: theme.textTheme.bodyLarge!.color!,
                           width: 2,
                         ),
                       ),
@@ -131,7 +134,7 @@ class _AddSubjectPageState extends State<AddSubjectPage> {
                             'Preview',
                             style: TextStyle(
                               fontSize: 10,
-                              color: const Color(0xFF1E293B).withOpacity(0.5),
+                              color: theme.textTheme.bodyMedium!.color!,
                               fontWeight: FontWeight.w500,
                             ),
                           ),
@@ -140,10 +143,10 @@ class _AddSubjectPageState extends State<AddSubjectPage> {
                             _nameController.text.isEmpty
                                 ? 'Subject name'
                                 : _nameController.text,
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: 15,
                               fontWeight: FontWeight.w500,
-                              color: Color(0xFF1E293B),
+                              color: theme.textTheme.bodyLarge!.color!,
                             ),
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
@@ -162,34 +165,33 @@ class _AddSubjectPageState extends State<AddSubjectPage> {
                 style: TextStyle(
                   fontSize: 11,
                   fontWeight: FontWeight.w500,
-                  color: const Color(0xFF1E293B).withOpacity(0.8),
+                  color: theme.textTheme.bodyLarge!.color!,
                 ),
               ),
               const SizedBox(height: 4),
               TextField(
                 controller: _nameController,
                 onChanged: (value) => setState(() {}),
+                style: TextStyle(color: theme.textTheme.bodyLarge!.color!),
                 decoration: InputDecoration(
                   hintText: 'e.g. Computer Science',
                   hintStyle: TextStyle(
-                    color: const Color(0xFF1E293B).withOpacity(0.4),
+                    color: theme.textTheme.bodyMedium!.color!,
                   ),
                   filled: true,
-                  fillColor: Colors.white,
+                  fillColor: theme.cardColor,
                   contentPadding: const EdgeInsets.symmetric(
                     horizontal: 14,
                     vertical: 12,
                   ),
                   enabledBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(18),
-                    borderSide: BorderSide(
-                      color: const Color(0xFF1E293B).withOpacity(0.1),
-                    ),
+                    borderSide: BorderSide(color: theme.dividerColor),
                   ),
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(18),
-                    borderSide: const BorderSide(
-                      color: Color(0xFF4C9EEB),
+                    borderSide: BorderSide(
+                      color: colorScheme.primary,
                       width: 2,
                     ),
                   ),
@@ -203,7 +205,7 @@ class _AddSubjectPageState extends State<AddSubjectPage> {
                 style: TextStyle(
                   fontSize: 11,
                   fontWeight: FontWeight.w500,
-                  color: const Color(0xFF1E293B).withOpacity(0.8),
+                  color: theme.textTheme.bodyLarge!.color!,
                 ),
               ),
               const SizedBox(height: 10),
@@ -220,14 +222,11 @@ class _AddSubjectPageState extends State<AddSubjectPage> {
                       height: 36,
                       decoration: BoxDecoration(
                         color: isSelected
-                            ? const Color(0xFFE8F3FD)
-                            : const Color(0xFFF8F9FA),
+                            ? colorScheme.primary.withValues(alpha: 0.1)
+                            : theme.cardColor,
                         borderRadius: BorderRadius.circular(12),
                         border: isSelected
-                            ? Border.all(
-                                color: const Color(0xFF4C9EEB),
-                                width: 2,
-                              )
+                            ? Border.all(color: colorScheme.primary, width: 2)
                             : Border.all(color: Colors.transparent, width: 2),
                       ),
                       child: Center(
@@ -248,7 +247,7 @@ class _AddSubjectPageState extends State<AddSubjectPage> {
                 style: TextStyle(
                   fontSize: 11,
                   fontWeight: FontWeight.w500,
-                  color: const Color(0xFF1E293B).withOpacity(0.8),
+                  color: theme.textTheme.bodyLarge!.color!,
                 ),
               ),
               const SizedBox(height: 10),
@@ -267,10 +266,7 @@ class _AddSubjectPageState extends State<AddSubjectPage> {
                         color: _colors[index],
                         shape: BoxShape.circle,
                         border: isSelected
-                            ? Border.all(
-                                color: const Color(0xFF4C9EEB),
-                                width: 2,
-                              )
+                            ? Border.all(color: colorScheme.primary, width: 2)
                             : null,
                       ),
                       // Create inner white gap if selected
@@ -283,7 +279,7 @@ class _AddSubjectPageState extends State<AddSubjectPage> {
                                   color: _colors[index],
                                   shape: BoxShape.circle,
                                   border: Border.all(
-                                    color: Colors.white,
+                                    color: theme.colorScheme.surface,
                                     width: 2,
                                   ),
                                 ),
@@ -303,8 +299,10 @@ class _AddSubjectPageState extends State<AddSubjectPage> {
                     child: TextButton(
                       onPressed: () => Navigator.pop(context),
                       style: TextButton.styleFrom(
-                        backgroundColor: const Color(0xFFE8F3FD),
-                        foregroundColor: const Color(0xFF4C9EEB),
+                        backgroundColor: colorScheme.primary.withValues(
+                          alpha: 0.1,
+                        ),
+                        foregroundColor: colorScheme.primary,
                         padding: const EdgeInsets.symmetric(vertical: 12),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(18),
@@ -336,8 +334,8 @@ class _AddSubjectPageState extends State<AddSubjectPage> {
                         Navigator.pop(context, newSubject);
                       },
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFFa2c8f2),
-                        foregroundColor: Colors.white,
+                        backgroundColor: colorScheme.primary,
+                        foregroundColor: colorScheme.onPrimary,
                         padding: const EdgeInsets.symmetric(vertical: 12),
                         elevation: 0,
                         shape: RoundedRectangleBorder(

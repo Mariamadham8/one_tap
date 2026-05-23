@@ -106,14 +106,17 @@ class _TaskTimerPageState extends State<TaskTimerPage> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    
     return Scaffold(
       body: Container(
         width: double.infinity,
-        decoration: const BoxDecoration(
+        decoration: BoxDecoration(
           gradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
-            colors: [Color(0xFFF0F5FA), Color(0xFFDFF0FF)],
+            colors: [theme.scaffoldBackgroundColor, colorScheme.primary.withValues(alpha: 0.1)],
           ),
         ),
         child: SafeArea(
@@ -138,13 +141,13 @@ class _TaskTimerPageState extends State<TaskTimerPage> {
                               borderRadius: BorderRadius.circular(18),
                               child: Container(
                                 padding: const EdgeInsets.all(10),
-                                decoration: const BoxDecoration(
-                                  color: Colors.white,
+                                decoration: BoxDecoration(
+                                  color: theme.cardColor,
                                   shape: BoxShape.circle,
                                 ),
-                                child: const Icon(
+                                child: Icon(
                                   Icons.arrow_back,
-                                  color: Color(0xFF1E293B),
+                                  color: theme.textTheme.bodyLarge!.color!,
                                   size: 18,
                                 ),
                               ),
@@ -153,21 +156,21 @@ class _TaskTimerPageState extends State<TaskTimerPage> {
                           const SizedBox(height: 14),
 
                           // Titles
-                          const Text(
+                          Text(
                             'Focusing on',
                             style: TextStyle(
                               fontSize: 11,
-                              color: Color(0xFF64748B),
+                              color: theme.textTheme.bodyMedium!.color!,
                               fontWeight: FontWeight.w400,
                             ),
                           ),
                           const SizedBox(height: 4),
                           Text(
                             widget.taskTitle,
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: 15,
                               fontWeight: FontWeight.w500,
-                              color: Color(0xFF0F172A),
+                              color: theme.textTheme.bodyLarge!.color!,
                             ),
                             textAlign: TextAlign.center,
                           ),
@@ -180,23 +183,23 @@ class _TaskTimerPageState extends State<TaskTimerPage> {
                             height: 224,
                             decoration: BoxDecoration(
                               shape: BoxShape.circle,
-                              color: Colors.white.withOpacity(0.4),
+                              color: theme.cardColor.withValues(alpha: 0.4),
                             ),
                             alignment: Alignment.center,
                             child: Container(
                               width: 192,
                               height: 192,
-                              decoration: const BoxDecoration(
+                              decoration: BoxDecoration(
                                 shape: BoxShape.circle,
-                                color: Colors.white,
+                                color: theme.cardColor,
                               ),
                               child: Column(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
-                                  const Text(
+                                  Text(
                                     'POMODORO',
                                     style: TextStyle(
-                                      color: Color(0xFF64748B),
+                                      color: theme.textTheme.bodyMedium!.color!,
                                       fontSize: 10,
                                       letterSpacing: 1.5,
                                       fontWeight: FontWeight.w500,
@@ -209,8 +212,8 @@ class _TaskTimerPageState extends State<TaskTimerPage> {
                                     children: [
                                       Text(
                                         _formattedTime,
-                                        style: const TextStyle(
-                                          color: Color(0xFF0F172A),
+                                        style: TextStyle(
+                                          color: theme.textTheme.bodyLarge!.color!,
                                           fontSize: 46,
                                           height: 1.1,
                                           fontWeight: FontWeight.w500,
@@ -249,7 +252,7 @@ class _TaskTimerPageState extends State<TaskTimerPage> {
                                                     _timeChangeIndicator!
                                                         .startsWith('+')
                                                     ? const Color(0xFF10B981)
-                                                    : const Color(0xFFEF4444),
+                                                    : colorScheme.error,
                                                 fontWeight: FontWeight.w600,
                                                 fontSize: 16,
                                               ),
@@ -270,9 +273,9 @@ class _TaskTimerPageState extends State<TaskTimerPage> {
                           Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              _buildTimeButton('- 5 min', -5),
+                              _buildTimeButton(context, '- 5 min', -5),
                               const SizedBox(width: 10),
-                              _buildTimeButton('+ 5 min', 5),
+                              _buildTimeButton(context, '+ 5 min', 5),
                             ],
                           ),
 
@@ -283,6 +286,7 @@ class _TaskTimerPageState extends State<TaskTimerPage> {
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               _buildControlPill(
+                                context,
                                 Icons.replay,
                                 'Reset',
                                 _resetTimer,
@@ -296,14 +300,10 @@ class _TaskTimerPageState extends State<TaskTimerPage> {
                                   width: 60,
                                   height: 60,
                                   decoration: BoxDecoration(
-                                    color: const Color(
-                                      0xFF60A5FA,
-                                    ), // Blue color
+                                    color: colorScheme.primary, // Blue color
                                     shape: BoxShape.circle,
                                     border: Border.all(
-                                      color: const Color(
-                                        0xFF0F172A,
-                                      ), // Dark border
+                                      color: theme.textTheme.bodyLarge!.color!, // Dark border
                                       width: 1.2,
                                     ),
                                   ),
@@ -312,7 +312,7 @@ class _TaskTimerPageState extends State<TaskTimerPage> {
                                       _isRunning
                                           ? Icons.pause
                                           : Icons.play_arrow,
-                                      color: Colors.white,
+                                      color: colorScheme.onPrimary,
                                       size: 36,
                                     ),
                                   ),
@@ -320,6 +320,7 @@ class _TaskTimerPageState extends State<TaskTimerPage> {
                               ),
                               const SizedBox(width: 10),
                               _buildControlPill(
+                                context,
                                 Icons.check,
                                 'Finish',
                                 _finishTimer,
@@ -340,20 +341,21 @@ class _TaskTimerPageState extends State<TaskTimerPage> {
     );
   }
 
-  Widget _buildTimeButton(String text, int minutesToAdd) {
+  Widget _buildTimeButton(BuildContext context, String text, int minutesToAdd) {
+    final theme = Theme.of(context);
     return InkWell(
       onTap: () => _addTime(minutesToAdd),
       borderRadius: BorderRadius.circular(14),
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: theme.cardColor,
           borderRadius: BorderRadius.circular(14),
         ),
         child: Text(
           text,
-          style: const TextStyle(
-            color: Color(0xFF4C9EEB),
+          style: TextStyle(
+            color: theme.colorScheme.primary,
             fontWeight: FontWeight.w500,
             fontSize: 10,
           ),
@@ -362,25 +364,26 @@ class _TaskTimerPageState extends State<TaskTimerPage> {
     );
   }
 
-  Widget _buildControlPill(IconData icon, String text, VoidCallback onTap) {
+  Widget _buildControlPill(BuildContext context, IconData icon, String text, VoidCallback onTap) {
+    final theme = Theme.of(context);
     return InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(14),
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: theme.cardColor,
           borderRadius: BorderRadius.circular(14),
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(icon, color: const Color(0xFF4C9EEB), size: 16),
+            Icon(icon, color: theme.colorScheme.primary, size: 16),
             const SizedBox(width: 4),
             Text(
               text,
-              style: const TextStyle(
-                color: Color(0xFF4C9EEB),
+              style: TextStyle(
+                color: theme.colorScheme.primary,
                 fontWeight: FontWeight.w500,
                 fontSize: 10,
               ),
@@ -391,3 +394,5 @@ class _TaskTimerPageState extends State<TaskTimerPage> {
     );
   }
 }
+
+

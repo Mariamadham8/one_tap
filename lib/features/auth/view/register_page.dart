@@ -53,19 +53,19 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
         );
       }
     } on FirebaseAuthException catch (e) {
-      if (mounted) {
-        setState(() => _isLoading = false);
-      }
+      if (!mounted) return;
+      setState(() => _isLoading = false);
       final authService = ref.read(authServiceProvider);
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(authService.getErrorMessage(e.code))),
       );
     } catch (_) {
-      if (mounted) {
-        setState(() => _isLoading = false);
-      }
+      if (!mounted) return;
+      setState(() => _isLoading = false);
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Something went wrong. Please try again.')),
+        const SnackBar(
+          content: Text('Something went wrong. Please try again.'),
+        ),
       );
     }
   }
@@ -240,7 +240,7 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
         ),
         if (_isLoading)
           Container(
-            color: Colors.black.withOpacity(0.3),
+            color: Colors.black.withValues(alpha: 0.3),
             child: const Center(
               child: CircularProgressIndicator(color: Color(0xFF67ADF6)),
             ),

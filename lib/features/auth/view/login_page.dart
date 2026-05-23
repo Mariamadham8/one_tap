@@ -48,6 +48,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
 
       if (!authService.isEmailVerified) {
         await authService.sendVerifyEmail();
+        if (!mounted) return;
         Navigator.push(
           context,
           MaterialPageRoute(builder: (context) => const VerifyEmailPage()),
@@ -108,7 +109,9 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                         shape: BoxShape.circle,
                         boxShadow: [
                           BoxShadow(
-                            color: const Color(0xFF67ADF6).withOpacity(0.3),
+                            color: const Color(
+                              0xFF67ADF6,
+                            ).withValues(alpha: 0.3),
                             blurRadius: 10,
                             offset: const Offset(0, 4),
                           ),
@@ -257,7 +260,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
 
         if (_isLoading)
           Container(
-            color: Colors.black.withOpacity(0.3),
+            color: Colors.black.withValues(alpha: 0.3),
             child: const Center(
               child: CircularProgressIndicator(color: Color(0xFF67ADF6)),
             ),

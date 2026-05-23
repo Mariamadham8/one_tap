@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:one_tap/features/auth/providers/auth_provider.dart';
 import 'package:one_tap/features/notifications/data/notification_service.dart';
 import 'package:one_tap/features/notifications/view/notifications_page.dart';
 import 'package:one_tap/features/subjects/data/subjects_firestore_service.dart';
@@ -30,8 +31,10 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
     return Scaffold(
-      backgroundColor: const Color(0xFFF8F9FA),
       body: SafeArea(bottom: false, child: _pages[_selectedIndex]),
       extendBody: true,
       bottomNavigationBar: SafeArea(
@@ -41,11 +44,11 @@ class _HomePageState extends State<HomePage> {
             height: 64,
             padding: const EdgeInsets.symmetric(horizontal: 8),
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: theme.cardColor,
               borderRadius: BorderRadius.circular(32),
               boxShadow: [
                 BoxShadow(
-                  color: const Color(0xFF4C9EEB).withOpacity(0.15),
+                  color: colorScheme.primary.withValues(alpha: 0.15),
                   blurRadius: 20,
                   offset: const Offset(0, 10),
                 ),
@@ -55,18 +58,26 @@ class _HomePageState extends State<HomePage> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 _buildNavItem(
+                  context,
                   0,
                   Icons.home_outlined,
                   Icons.home_rounded,
                   'Home',
                 ),
                 _buildNavItem(
+                  context,
                   1,
                   Icons.check_box_outlined,
                   Icons.check_box,
                   'Today',
                 ),
-                _buildNavItem(2, Icons.person_outline, Icons.person, 'Profile'),
+                _buildNavItem(
+                  context,
+                  2,
+                  Icons.person_outline,
+                  Icons.person,
+                  'Profile',
+                ),
               ],
             ),
           ),
@@ -76,12 +87,16 @@ class _HomePageState extends State<HomePage> {
   }
 
   Widget _buildNavItem(
+    BuildContext context,
     int index,
     IconData icon,
     IconData activeIcon,
     String label,
   ) {
     final isSelected = _selectedIndex == index;
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
     return GestureDetector(
       onTap: () {
         setState(() {
@@ -93,14 +108,16 @@ class _HomePageState extends State<HomePage> {
         duration: const Duration(milliseconds: 250),
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         decoration: BoxDecoration(
-          color: isSelected ? const Color(0xFF4C9EEB) : Colors.transparent,
+          color: isSelected ? colorScheme.primary : Colors.transparent,
           borderRadius: BorderRadius.circular(24),
         ),
         child: Row(
           children: [
             Icon(
               isSelected ? activeIcon : icon,
-              color: isSelected ? Colors.white : Colors.grey.shade500,
+              color: isSelected
+                  ? colorScheme.onPrimary
+                  : theme.unselectedWidgetColor,
               size: 22,
             ),
             if (isSelected)
@@ -108,8 +125,8 @@ class _HomePageState extends State<HomePage> {
                 padding: const EdgeInsets.only(left: 8.0),
                 child: Text(
                   label,
-                  style: const TextStyle(
-                    color: Colors.white,
+                  style: TextStyle(
+                    color: colorScheme.onPrimary,
                     fontWeight: FontWeight.w600,
                     fontSize: 13,
                   ),
@@ -122,31 +139,19 @@ class _HomePageState extends State<HomePage> {
   }
 }
 
-class _HomeDashboardView extends StatefulWidget {
+class _HomeDashboardView extends ConsumerStatefulWidget {
   const _HomeDashboardView();
 
   @override
-  State<_HomeDashboardView> createState() => _HomeDashboardViewState();
+  ConsumerState<_HomeDashboardView> createState() => _HomeDashboardViewState();
 }
 
-class _HomeDashboardViewState extends State<_HomeDashboardView> {
+class _HomeDashboardViewState extends ConsumerState<_HomeDashboardView> {
   final SubjectsFirestoreService _subjectsService = SubjectsFirestoreService();
   final TasksFirestoreService _tasksService = TasksFirestoreService();
   final NotificationService _notificationService = NotificationService();
   bool _isLoadingSubjects = true;
   int _unreadNotificationsCount = 0;
-
-  User? get _currentUser => FirebaseAuth.instance.currentUser;
-
-  String get _displayName {
-    final name = _currentUser?.displayName?.trim();
-    if (name != null && name.isNotEmpty) return name;
-
-    final email = _currentUser?.email?.trim();
-    if (email != null && email.isNotEmpty) return email.split('@').first;
-
-    return 'User';
-  }
 
   @override
   void initState() {
@@ -221,6 +226,9 @@ class _HomeDashboardViewState extends State<_HomeDashboardView> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    final String displayName = ref.watch(userNameProvider);
     final int totalTasks = globalTasks.length;
     final int completedTasksCount = globalTasks.where((t) => t.isDone).length;
     final double progressScore = totalTasks == 0
@@ -258,28 +266,28 @@ class _HomeDashboardViewState extends State<_HomeDashboardView> {
                     'Good evening',
                     style: TextStyle(
                       fontSize: 11,
-                      color: Colors.grey.shade600,
+                      color: theme.textTheme.bodyMedium!.color!,
                       fontWeight: FontWeight.w500,
                     ),
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    '$_displayName 👋',
-                    style: const TextStyle(
+                    '$displayName 👋',
+                    style: TextStyle(
                       fontSize: 20,
                       fontWeight: FontWeight.w500,
-                      color: Color(0xFF1E293B),
+                      color: theme.textTheme.bodyLarge!.color!,
                     ),
                   ),
                 ],
               ),
               Container(
                 decoration: BoxDecoration(
-                  color: Colors.white,
+                  color: theme.cardColor,
                   shape: BoxShape.circle,
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withOpacity(0.05),
+                      color: Colors.black.withValues(alpha: 0.05),
                       blurRadius: 10,
                     ),
                   ],
@@ -289,7 +297,7 @@ class _HomeDashboardViewState extends State<_HomeDashboardView> {
                   children: [
                     IconButton(
                       icon: const Icon(Icons.notifications_none_outlined),
-                      color: const Color(0xFF4C9EEB),
+                      color: colorScheme.primary,
                       onPressed: () async {
                         await Navigator.push(
                           context,
@@ -311,17 +319,20 @@ class _HomeDashboardViewState extends State<_HomeDashboardView> {
                           ),
                           padding: const EdgeInsets.symmetric(horizontal: 5),
                           decoration: BoxDecoration(
-                            color: const Color(0xFFE53935),
+                            color: colorScheme.error,
                             borderRadius: BorderRadius.circular(12),
-                            border: Border.all(color: Colors.white, width: 1.5),
+                            border: Border.all(
+                              color: theme.cardColor,
+                              width: 1.5,
+                            ),
                           ),
                           child: Center(
                             child: Text(
                               _unreadNotificationsCount > 9
                                   ? '9+'
                                   : '$_unreadNotificationsCount',
-                              style: const TextStyle(
-                                color: Colors.white,
+                              style: TextStyle(
+                                color: colorScheme.onError,
                                 fontSize: 10,
                                 fontWeight: FontWeight.bold,
                                 height: 1.1,
@@ -340,8 +351,11 @@ class _HomeDashboardViewState extends State<_HomeDashboardView> {
           Container(
             padding: const EdgeInsets.all(18),
             decoration: BoxDecoration(
-              gradient: const LinearGradient(
-                colors: [Color(0xFF4C9EEB), Color(0xFF75B9F0)],
+              gradient: LinearGradient(
+                colors: [
+                  colorScheme.primary,
+                  colorScheme.primary.withValues(alpha: 0.8),
+                ],
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
               ),
@@ -355,16 +369,16 @@ class _HomeDashboardViewState extends State<_HomeDashboardView> {
                   children: [
                     Row(
                       children: [
-                        const Icon(
+                        Icon(
                           Icons.trending_up,
-                          color: Colors.white,
+                          color: colorScheme.onPrimary,
                           size: 16,
                         ),
                         const SizedBox(width: 4),
                         Text(
                           'Today\'s progress',
                           style: TextStyle(
-                            color: Colors.white.withOpacity(0.9),
+                            color: colorScheme.onPrimary.withValues(alpha: 0.9),
                             fontSize: 11,
                             fontWeight: FontWeight.w500,
                           ),
@@ -379,8 +393,8 @@ class _HomeDashboardViewState extends State<_HomeDashboardView> {
                   children: [
                     Text(
                       '$progressPercent%',
-                      style: const TextStyle(
-                        color: Colors.white,
+                      style: TextStyle(
+                        color: colorScheme.onPrimary,
                         fontSize: 32,
                         fontWeight: FontWeight.w500,
                         height: 1,
@@ -390,7 +404,7 @@ class _HomeDashboardViewState extends State<_HomeDashboardView> {
                     Text(
                       'Keep going!',
                       style: TextStyle(
-                        color: Colors.white.withOpacity(0.9),
+                        color: colorScheme.onPrimary.withValues(alpha: 0.9),
                         fontSize: 11,
                         fontWeight: FontWeight.w500,
                       ),
@@ -402,8 +416,10 @@ class _HomeDashboardViewState extends State<_HomeDashboardView> {
                   borderRadius: BorderRadius.circular(10),
                   child: LinearProgressIndicator(
                     value: progressScore,
-                    backgroundColor: Colors.white.withOpacity(0.3),
-                    valueColor: const AlwaysStoppedAnimation(Colors.white),
+                    backgroundColor: colorScheme.onPrimary.withValues(
+                      alpha: 0.3,
+                    ),
+                    valueColor: AlwaysStoppedAnimation(colorScheme.onPrimary),
                     minHeight: 6,
                   ),
                 ),
@@ -418,14 +434,18 @@ class _HomeDashboardViewState extends State<_HomeDashboardView> {
                             children: [
                               Icon(
                                 Icons.check_circle_outline,
-                                color: Colors.white.withOpacity(0.8),
+                                color: colorScheme.onPrimary.withValues(
+                                  alpha: 0.8,
+                                ),
                                 size: 14,
                               ),
                               const SizedBox(width: 4),
                               Text(
                                 'Tasks',
                                 style: TextStyle(
-                                  color: Colors.white.withOpacity(0.8),
+                                  color: colorScheme.onPrimary.withValues(
+                                    alpha: 0.8,
+                                  ),
                                   fontSize: 10,
                                 ),
                               ),
@@ -434,8 +454,8 @@ class _HomeDashboardViewState extends State<_HomeDashboardView> {
                           const SizedBox(height: 4),
                           Text(
                             '$completedTasksCount done',
-                            style: const TextStyle(
-                              color: Colors.white,
+                            style: TextStyle(
+                              color: colorScheme.onPrimary,
                               fontWeight: FontWeight.w500,
                               fontSize: 14,
                             ),
@@ -446,7 +466,7 @@ class _HomeDashboardViewState extends State<_HomeDashboardView> {
                     Container(
                       width: 1,
                       height: 22,
-                      color: Colors.white.withOpacity(0.3),
+                      color: colorScheme.onPrimary.withValues(alpha: 0.3),
                     ),
                     const SizedBox(width: 14),
                     Expanded(
@@ -457,14 +477,18 @@ class _HomeDashboardViewState extends State<_HomeDashboardView> {
                             children: [
                               Icon(
                                 Icons.access_time,
-                                color: Colors.white.withOpacity(0.8),
+                                color: colorScheme.onPrimary.withValues(
+                                  alpha: 0.8,
+                                ),
                                 size: 14,
                               ),
                               const SizedBox(width: 4),
                               Text(
                                 'Focus',
                                 style: TextStyle(
-                                  color: Colors.white.withOpacity(0.8),
+                                  color: colorScheme.onPrimary.withValues(
+                                    alpha: 0.8,
+                                  ),
                                   fontSize: 10,
                                 ),
                               ),
@@ -473,8 +497,8 @@ class _HomeDashboardViewState extends State<_HomeDashboardView> {
                           const SizedBox(height: 4),
                           Text(
                             focusText,
-                            style: const TextStyle(
-                              color: Colors.white,
+                            style: TextStyle(
+                              color: colorScheme.onPrimary,
                               fontWeight: FontWeight.w500,
                               fontSize: 14,
                             ),
@@ -489,12 +513,12 @@ class _HomeDashboardViewState extends State<_HomeDashboardView> {
           ),
           const SizedBox(height: 18),
 
-          const Text(
+          Text(
             'Subjects',
             style: TextStyle(
               fontSize: 17,
               fontWeight: FontWeight.w500,
-              color: Color(0xFF1E293B),
+              color: theme.textTheme.bodyLarge!.color!,
             ),
           ),
           const SizedBox(height: 10),
@@ -520,10 +544,10 @@ class _HomeDashboardViewState extends State<_HomeDashboardView> {
                 borderRadius: BorderRadius.circular(14),
                 child: Container(
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: theme.cardColor,
                     borderRadius: BorderRadius.circular(14),
                     border: Border.all(
-                      color: const Color(0xFF4C9EEB).withOpacity(0.3),
+                      color: colorScheme.primary.withValues(alpha: 0.3),
                       style: BorderStyle.solid,
                       width: 1.5,
                     ),
@@ -534,26 +558,26 @@ class _HomeDashboardViewState extends State<_HomeDashboardView> {
                       Container(
                         padding: const EdgeInsets.all(8),
                         decoration: BoxDecoration(
-                          color: Colors.white,
+                          color: theme.cardColor,
                           shape: BoxShape.circle,
                           boxShadow: [
                             BoxShadow(
-                              color: Colors.black.withOpacity(0.05),
+                              color: Colors.black.withValues(alpha: 0.05),
                               blurRadius: 8,
                             ),
                           ],
                         ),
-                        child: const Icon(
+                        child: Icon(
                           Icons.add,
-                          color: Color(0xFF4C9EEB),
+                          color: colorScheme.primary,
                           size: 24,
                         ),
                       ),
                       const SizedBox(height: 8),
-                      const Text(
+                      Text(
                         'New subject',
                         style: TextStyle(
-                          color: Color(0xFF4C9EEB),
+                          color: colorScheme.primary,
                           fontWeight: FontWeight.w500,
                           fontSize: 12,
                         ),
@@ -606,6 +630,10 @@ class _HomeDashboardViewState extends State<_HomeDashboardView> {
     required String emoji,
     required Color color,
   }) {
+    // Calculate if color is bright or dark to choose proper text color for contrast
+    final isColorBright = color.computeLuminance() > 0.5;
+    final textColor = isColorBright ? Colors.black87 : Colors.white;
+
     return InkWell(
       onTap: () async {
         await Navigator.push(
@@ -635,17 +663,17 @@ class _HomeDashboardViewState extends State<_HomeDashboardView> {
             const Spacer(),
             Text(
               title,
-              style: const TextStyle(
+              style: TextStyle(
                 fontWeight: FontWeight.w500,
                 fontSize: 13,
-                color: Color(0xFF1E293B),
+                color: textColor,
               ),
             ),
             const SizedBox(height: 4),
             Text(
               taskCount,
               style: TextStyle(
-                color: const Color(0xFF1E293B).withOpacity(0.6),
+                color: textColor.withValues(alpha: 0.6),
                 fontSize: 10,
               ),
             ),
@@ -657,14 +685,14 @@ class _HomeDashboardViewState extends State<_HomeDashboardView> {
                   'Progress',
                   style: TextStyle(
                     fontSize: 9,
-                    color: const Color(0xFF1E293B).withOpacity(0.6),
+                    color: textColor.withValues(alpha: 0.6),
                   ),
                 ),
                 Text(
                   '%',
                   style: TextStyle(
                     fontSize: 9,
-                    color: const Color(0xFF1E293B).withOpacity(0.8),
+                    color: textColor.withValues(alpha: 0.8),
                     fontWeight: FontWeight.w500,
                   ),
                 ),
@@ -675,8 +703,8 @@ class _HomeDashboardViewState extends State<_HomeDashboardView> {
               borderRadius: BorderRadius.circular(10),
               child: LinearProgressIndicator(
                 value: progress,
-                backgroundColor: Colors.white.withOpacity(0.5),
-                valueColor: const AlwaysStoppedAnimation(Color(0xFF4C9EEB)),
+                backgroundColor: textColor.withValues(alpha: 0.2),
+                valueColor: AlwaysStoppedAnimation(textColor),
                 minHeight: 4,
               ),
             ),

@@ -39,7 +39,7 @@ class SubjectModel {
     return {
       'title': title,
       'emoji': emoji,
-      'colorValue': color.value,
+      'colorValue': color.toARGB32(),
       'taskCount': taskCount,
       'progress': progress,
     };
@@ -50,7 +50,7 @@ class SubjectModel {
       id: id,
       title: map['title'] as String? ?? 'Untitled',
       emoji: map['emoji'] as String? ?? '📘',
-      color: Color(map['colorValue'] as int? ?? const Color(0xFFa2c8f2).value),
+      color: Color(map['colorValue'] as int? ?? 0xFFa2c8f2),
       taskCount: map['taskCount'] as String? ?? '0 tasks',
       progress: (map['progress'] as num?)?.toDouble() ?? 0.0,
     );

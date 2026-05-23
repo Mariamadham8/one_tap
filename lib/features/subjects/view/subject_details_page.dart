@@ -41,6 +41,8 @@ class _SubjectDetailsPageState extends State<SubjectDetailsPage> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
     final subjectTasks = globalTasks
         .where(
           (t) => widget.subjectId != null
@@ -57,18 +59,17 @@ class _SubjectDetailsPageState extends State<SubjectDetailsPage> {
     final studyMins = totalStudyMinutes % 60;
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF8F9FA),
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: Padding(
           padding: const EdgeInsets.only(left: 12.0),
           child: CircleAvatar(
-            backgroundColor: Colors.white,
+            backgroundColor: theme.cardColor,
             child: IconButton(
-              icon: const Icon(
+              icon: Icon(
                 Icons.arrow_back,
-                color: Color(0xFF1E293B),
+                color: theme.textTheme.bodyLarge!.color!,
                 size: 20,
               ),
               onPressed: () => Navigator.pop(context),
@@ -79,9 +80,12 @@ class _SubjectDetailsPageState extends State<SubjectDetailsPage> {
           Padding(
             padding: const EdgeInsets.only(right: 12.0),
             child: CircleAvatar(
-              backgroundColor: Colors.white,
+              backgroundColor: theme.cardColor,
               child: PopupMenuButton<String>(
-                icon: const Icon(Icons.more_horiz, color: Color(0xFF1E293B)),
+                icon: Icon(
+                  Icons.more_horiz,
+                  color: theme.textTheme.bodyLarge!.color!,
+                ),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(14),
                 ),
@@ -154,17 +158,20 @@ class _SubjectDetailsPageState extends State<SubjectDetailsPage> {
                   }
                 },
                 itemBuilder: (context) => [
-                  const PopupMenuItem(
+                  PopupMenuItem(
                     value: 'edit',
                     child: Row(
                       children: [
                         Icon(
                           Icons.edit_outlined,
                           size: 18,
-                          color: Color(0xFF1E293B),
+                          color: theme.textTheme.bodyLarge!.color!,
                         ),
-                        SizedBox(width: 8),
-                        Text('Edit Subject', style: TextStyle(fontSize: 14)),
+                        const SizedBox(width: 8),
+                        const Text(
+                          'Edit Subject',
+                          style: TextStyle(fontSize: 14),
+                        ),
                       ],
                     ),
                   ),
@@ -196,10 +203,10 @@ class _SubjectDetailsPageState extends State<SubjectDetailsPage> {
             const SizedBox(height: 10),
             Text(
               currentTitle,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 24,
                 fontWeight: FontWeight.w500,
-                color: Color(0xFF1E293B),
+                color: theme.textTheme.bodyLarge!.color!,
               ),
             ),
 
@@ -210,11 +217,11 @@ class _SubjectDetailsPageState extends State<SubjectDetailsPage> {
                   child: Container(
                     padding: const EdgeInsets.all(14),
                     decoration: BoxDecoration(
-                      color: Colors.white,
+                      color: theme.cardColor,
                       borderRadius: BorderRadius.circular(18),
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black.withOpacity(0.02),
+                          color: Colors.black.withValues(alpha: 0.02),
                           blurRadius: 10,
                           offset: const Offset(0, 4),
                         ),
@@ -228,14 +235,14 @@ class _SubjectDetailsPageState extends State<SubjectDetailsPage> {
                             Icon(
                               Icons.access_time,
                               size: 16,
-                              color: const Color(0xFF1E293B).withOpacity(0.5),
+                              color: theme.textTheme.bodyMedium!.color!,
                             ),
                             const SizedBox(width: 4),
                             Text(
                               'Total study',
                               style: TextStyle(
                                 fontSize: 10,
-                                color: const Color(0xFF1E293B).withOpacity(0.5),
+                                color: theme.textTheme.bodyMedium!.color!,
                                 fontWeight: FontWeight.w500,
                               ),
                             ),
@@ -249,18 +256,18 @@ class _SubjectDetailsPageState extends State<SubjectDetailsPage> {
                                 text: studyHours > 0
                                     ? '$studyHours'
                                     : '$studyMins',
-                                style: const TextStyle(
+                                style: TextStyle(
                                   fontSize: 24,
                                   fontWeight: FontWeight.w500,
-                                  color: Color(0xFF1E293B),
+                                  color: theme.textTheme.bodyLarge!.color!,
                                 ),
                               ),
                               TextSpan(
                                 text: studyHours > 0 ? 'h ${studyMins}m' : 'm',
-                                style: const TextStyle(
+                                style: TextStyle(
                                   fontSize: 14,
                                   fontWeight: FontWeight.w500,
-                                  color: Color(0xFF1E293B),
+                                  color: theme.textTheme.bodyLarge!.color!,
                                 ),
                               ),
                             ],
@@ -275,11 +282,11 @@ class _SubjectDetailsPageState extends State<SubjectDetailsPage> {
                   child: Container(
                     padding: const EdgeInsets.all(14),
                     decoration: BoxDecoration(
-                      color: Colors.white,
+                      color: theme.cardColor,
                       borderRadius: BorderRadius.circular(18),
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black.withOpacity(0.02),
+                          color: Colors.black.withValues(alpha: 0.02),
                           blurRadius: 10,
                           offset: const Offset(0, 4),
                         ),
@@ -293,14 +300,14 @@ class _SubjectDetailsPageState extends State<SubjectDetailsPage> {
                             Icon(
                               Icons.check_circle_outline,
                               size: 16,
-                              color: const Color(0xFF4C9EEB).withOpacity(0.8),
+                              color: colorScheme.primary,
                             ),
                             const SizedBox(width: 4),
                             Text(
                               'Completed',
                               style: TextStyle(
                                 fontSize: 10,
-                                color: const Color(0xFF1E293B).withOpacity(0.5),
+                                color: theme.textTheme.bodyMedium!.color!,
                                 fontWeight: FontWeight.w500,
                               ),
                             ),
@@ -312,18 +319,18 @@ class _SubjectDetailsPageState extends State<SubjectDetailsPage> {
                             children: [
                               TextSpan(
                                 text: '$completedTasks',
-                                style: const TextStyle(
+                                style: TextStyle(
                                   fontSize: 24,
                                   fontWeight: FontWeight.w500,
-                                  color: Color(0xFF1E293B),
+                                  color: theme.textTheme.bodyLarge!.color!,
                                 ),
                               ),
-                              const TextSpan(
+                              TextSpan(
                                 text: ' tasks',
                                 style: TextStyle(
                                   fontSize: 11,
                                   fontWeight: FontWeight.w500,
-                                  color: Color(0xFF1E293B),
+                                  color: theme.textTheme.bodyLarge!.color!,
                                 ),
                               ),
                             ],
@@ -336,12 +343,12 @@ class _SubjectDetailsPageState extends State<SubjectDetailsPage> {
               ],
             ),
             const SizedBox(height: 18),
-            const Text(
+            Text(
               'Tasks',
               style: TextStyle(
                 fontSize: 15,
                 fontWeight: FontWeight.w500,
-                color: Color(0xFF1E293B),
+                color: theme.textTheme.bodyLarge!.color!,
               ),
             ),
 
@@ -353,7 +360,7 @@ class _SubjectDetailsPageState extends State<SubjectDetailsPage> {
                   child: Text(
                     'No tasks for this subject yet.',
                     style: TextStyle(
-                      color: const Color(0xFF1E293B).withOpacity(0.5),
+                      color: theme.textTheme.bodyMedium!.color!,
                       fontSize: 14,
                     ),
                   ),
@@ -378,6 +385,7 @@ class _SubjectDetailsPageState extends State<SubjectDetailsPage> {
                       }
                     },
                     child: _buildTaskItem(
+                      context,
                       title: t.title,
                       duration: '${t.durationMinutes} min',
                       isCompleted: t.isDone,
@@ -392,21 +400,26 @@ class _SubjectDetailsPageState extends State<SubjectDetailsPage> {
     );
   }
 
-  Widget _buildTaskItem({
+  Widget _buildTaskItem(
+    BuildContext context, {
     required String title,
     required String duration,
     required bool isCompleted,
   }) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
       decoration: BoxDecoration(
-        color: isCompleted ? const Color(0xFFD6E4F0) : Colors.white,
+        color: isCompleted
+            ? colorScheme.primary.withValues(alpha: 0.1)
+            : theme.cardColor,
         borderRadius: BorderRadius.circular(18),
         boxShadow: isCompleted
             ? []
             : [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.02),
+                  color: Colors.black.withValues(alpha: 0.02),
                   blurRadius: 10,
                   offset: const Offset(0, 4),
                 ),
@@ -419,8 +432,8 @@ class _SubjectDetailsPageState extends State<SubjectDetailsPage> {
                 ? Icons.check_circle_outline
                 : Icons.radio_button_unchecked,
             color: isCompleted
-                ? const Color(0xFF4C9EEB)
-                : const Color(0xFF1E293B).withOpacity(0.5),
+                ? colorScheme.primary
+                : theme.textTheme.bodyMedium!.color!,
             size: 24,
           ),
           const SizedBox(width: 10),
@@ -434,8 +447,8 @@ class _SubjectDetailsPageState extends State<SubjectDetailsPage> {
                     fontSize: 14,
                     fontWeight: FontWeight.w500,
                     color: isCompleted
-                        ? const Color(0xFF1E293B).withOpacity(0.5)
-                        : const Color(0xFF1E293B),
+                        ? theme.textTheme.bodyMedium!.color!
+                        : theme.textTheme.bodyLarge!.color!,
                     decoration: isCompleted ? TextDecoration.lineThrough : null,
                   ),
                 ),
@@ -444,7 +457,7 @@ class _SubjectDetailsPageState extends State<SubjectDetailsPage> {
                   duration,
                   style: TextStyle(
                     fontSize: 11,
-                    color: const Color(0xFF1E293B).withOpacity(0.5),
+                    color: theme.textTheme.bodyMedium!.color!,
                   ),
                 ),
               ],

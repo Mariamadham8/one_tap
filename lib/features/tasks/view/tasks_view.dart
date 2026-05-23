@@ -28,6 +28,8 @@ class _TasksViewState extends State<TasksView> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
     final filteredTasks = _filteredTasks();
 
     return SingleChildScrollView(
@@ -44,17 +46,17 @@ class _TasksViewState extends State<TasksView> {
             'Tuesday, 19 April',
             style: TextStyle(
               fontSize: 10,
-              color: const Color(0xFF1E293B).withOpacity(0.5),
+              color: theme.textTheme.bodyMedium!.color!,
               fontWeight: FontWeight.w400,
             ),
           ),
           const SizedBox(height: 4),
-          const Text(
+          Text(
             'What\'s your plan today?',
             style: TextStyle(
               fontSize: 15,
               fontWeight: FontWeight.w500,
-              color: Color(0xFF1E293B),
+              color: theme.textTheme.bodyLarge!.color!,
             ),
           ),
           const SizedBox(height: 10),
@@ -77,7 +79,7 @@ class _TasksViewState extends State<TasksView> {
                     globalTasks.insert(0, savedTask);
                   });
                 } catch (_) {
-                  if (!mounted) return;
+                  if (!context.mounted) return;
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(
                       content: Text('Could not save task. Please try again.'),
@@ -94,20 +96,20 @@ class _TasksViewState extends State<TasksView> {
                 color: Colors.transparent,
                 borderRadius: BorderRadius.circular(14),
                 border: Border.all(
-                  color: const Color(0xFF4C9EEB).withOpacity(0.5),
+                  color: colorScheme.primary.withValues(alpha: 0.5),
                   width: 1.0,
                   style: BorderStyle.solid,
                 ),
               ),
-              child: const Row(
+              child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(Icons.add, color: Color(0xFF4C9EEB), size: 16),
-                  SizedBox(width: 4),
+                  Icon(Icons.add, color: colorScheme.primary, size: 16),
+                  const SizedBox(width: 4),
                   Text(
                     'Add Task',
                     style: TextStyle(
-                      color: Color(0xFF4C9EEB),
+                      color: colorScheme.primary,
                       fontSize: 10,
                       fontWeight: FontWeight.w500,
                     ),
@@ -120,11 +122,11 @@ class _TasksViewState extends State<TasksView> {
 
           Row(
             children: [
-              _buildFilterChip(TaskFilter.all, 'All'),
+              _buildFilterChip(context, TaskFilter.all, 'All'),
               const SizedBox(width: 8),
-              _buildFilterChip(TaskFilter.today, 'Today'),
+              _buildFilterChip(context, TaskFilter.today, 'Today'),
               const SizedBox(width: 8),
-              _buildFilterChip(TaskFilter.overdue, 'Overdue'),
+              _buildFilterChip(context, TaskFilter.overdue, 'Overdue'),
             ],
           ),
           const SizedBox(height: 10),
@@ -134,14 +136,14 @@ class _TasksViewState extends State<TasksView> {
               width: double.infinity,
               padding: const EdgeInsets.symmetric(vertical: 26),
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: theme.cardColor,
                 borderRadius: BorderRadius.circular(14),
               ),
               child: Center(
                 child: Text(
                   _emptyStateText(),
                   style: TextStyle(
-                    color: const Color(0xFF1E293B).withOpacity(0.5),
+                    color: theme.textTheme.bodyMedium!.color!,
                     fontSize: 12,
                     fontWeight: FontWeight.w500,
                   ),
@@ -177,7 +179,7 @@ class _TasksViewState extends State<TasksView> {
                 final globalIndex = globalTasks.indexOf(task);
                 return Container(
                   key: ObjectKey(task),
-                  child: _buildTaskCard(task, globalIndex),
+                  child: _buildTaskCard(context, task, globalIndex),
                 );
               },
             )
@@ -189,7 +191,12 @@ class _TasksViewState extends State<TasksView> {
               itemBuilder: (context, index) {
                 final task = filteredTasks[index];
                 final globalIndex = globalTasks.indexOf(task);
-                return _buildTaskCard(task, globalIndex, enableDrag: false);
+                return _buildTaskCard(
+                  context,
+                  task,
+                  globalIndex,
+                  enableDrag: false,
+                );
               },
             ),
         ],
@@ -197,9 +204,20 @@ class _TasksViewState extends State<TasksView> {
     );
   }
 
-  Widget _buildTaskCard(TaskModel task, int index, {bool enableDrag = true}) {
+  Widget _buildTaskCard(
+    BuildContext context,
+    TaskModel task,
+    int index, {
+    bool enableDrag = true,
+  }) {
     bool isDone = task.isDone;
     final isOverdue = _isTaskOverdue(task);
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
+    // Compute readable color for subject badge
+    final isColorBright = task.subject.color.computeLuminance() > 0.5;
+    final badgeTextColor = isColorBright ? Colors.black87 : Colors.white;
 
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
@@ -250,20 +268,20 @@ class _TasksViewState extends State<TasksView> {
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
             decoration: BoxDecoration(
               color: isDone
-                  ? const Color(0xFFEEF6FE)
+                  ? colorScheme.primary.withValues(alpha: 0.05)
                   : isOverdue
-                  ? const Color(0xFFFFF3ED)
-                  : Colors.white,
+                  ? colorScheme.error.withValues(alpha: 0.05)
+                  : theme.cardColor,
               borderRadius: BorderRadius.circular(12),
               border: Border.all(
                 color: isOverdue
-                    ? const Color(0xFFF97316).withOpacity(0.55)
+                    ? colorScheme.error.withValues(alpha: 0.55)
                     : Colors.transparent,
                 width: 1.2,
               ),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.02),
+                  color: Colors.black.withValues(alpha: 0.02),
                   blurRadius: 8,
                   offset: const Offset(0, 2),
                 ),
@@ -274,11 +292,11 @@ class _TasksViewState extends State<TasksView> {
                 if (enableDrag)
                   ReorderableDragStartListener(
                     index: index,
-                    child: const Padding(
-                      padding: EdgeInsets.only(right: 10.0),
+                    child: Padding(
+                      padding: const EdgeInsets.only(right: 10.0),
                       child: Icon(
                         Icons.drag_indicator,
-                        color: Color(0xFFCBD5E1),
+                        color: theme.dividerColor,
                         size: 20,
                       ),
                     ),
@@ -316,10 +334,10 @@ class _TasksViewState extends State<TasksView> {
                         ? Icons.check_circle_outline
                         : Icons.radio_button_unchecked,
                     color: isDone
-                        ? const Color(0xFF4C9EEB).withOpacity(0.5)
+                        ? colorScheme.primary
                         : isOverdue
-                        ? const Color(0xFFE53935)
-                        : const Color(0xFF1E293B).withOpacity(0.5),
+                        ? colorScheme.error
+                        : theme.textTheme.bodyMedium!.color!,
                     size: 20,
                   ),
                 ),
@@ -334,10 +352,10 @@ class _TasksViewState extends State<TasksView> {
                           fontSize: 11,
                           fontWeight: FontWeight.w500,
                           color: isDone
-                              ? const Color(0xFF1E293B).withOpacity(0.4)
+                              ? theme.textTheme.bodyMedium!.color!
                               : isOverdue
-                              ? const Color(0xFF9A3412)
-                              : const Color(0xFF1E293B),
+                              ? colorScheme.error
+                              : theme.textTheme.bodyLarge!.color!,
                           decoration: isDone
                               ? TextDecoration.lineThrough
                               : null,
@@ -353,7 +371,7 @@ class _TasksViewState extends State<TasksView> {
                             ),
                             decoration: BoxDecoration(
                               color: isDone
-                                  ? task.subject.color.withOpacity(0.4)
+                                  ? task.subject.color.withValues(alpha: 0.4)
                                   : task.subject.color,
                               borderRadius: BorderRadius.circular(4),
                             ),
@@ -363,8 +381,8 @@ class _TasksViewState extends State<TasksView> {
                                 fontSize: 8,
                                 fontWeight: FontWeight.w500,
                                 color: isDone
-                                    ? const Color(0xFF1E293B).withOpacity(0.4)
-                                    : const Color(0xFF1E293B).withOpacity(0.7),
+                                    ? badgeTextColor.withValues(alpha: 0.5)
+                                    : badgeTextColor,
                               ),
                             ),
                           ),
@@ -373,8 +391,10 @@ class _TasksViewState extends State<TasksView> {
                             Icons.access_time,
                             size: 12,
                             color: isDone
-                                ? const Color(0xFF1E293B).withOpacity(0.3)
-                                : const Color(0xFF1E293B).withOpacity(0.4),
+                                ? theme.textTheme.bodyMedium!.color!.withValues(
+                                    alpha: 0.5,
+                                  )
+                                : theme.textTheme.bodyMedium!.color!,
                           ),
                           const SizedBox(width: 4),
                           Text(
@@ -382,8 +402,9 @@ class _TasksViewState extends State<TasksView> {
                             style: TextStyle(
                               fontSize: 9,
                               color: isDone
-                                  ? const Color(0xFF1E293B).withOpacity(0.3)
-                                  : const Color(0xFF1E293B).withOpacity(0.5),
+                                  ? theme.textTheme.bodyMedium!.color!
+                                        .withValues(alpha: 0.5)
+                                  : theme.textTheme.bodyMedium!.color!,
                               fontWeight: FontWeight.w400,
                             ),
                           ),
@@ -393,10 +414,11 @@ class _TasksViewState extends State<TasksView> {
                               Icons.event_outlined,
                               size: 12,
                               color: isDone
-                                  ? const Color(0xFF1E293B).withOpacity(0.3)
+                                  ? theme.textTheme.bodyMedium!.color!
+                                        .withValues(alpha: 0.5)
                                   : isOverdue
-                                  ? const Color(0xFFE53935)
-                                  : const Color(0xFF1E293B).withOpacity(0.4),
+                                  ? colorScheme.error
+                                  : theme.textTheme.bodyMedium!.color!,
                             ),
                             const SizedBox(width: 4),
                             Text(
@@ -404,10 +426,11 @@ class _TasksViewState extends State<TasksView> {
                               style: TextStyle(
                                 fontSize: 9,
                                 color: isDone
-                                    ? const Color(0xFF1E293B).withOpacity(0.3)
+                                    ? theme.textTheme.bodyMedium!.color!
+                                          .withValues(alpha: 0.5)
                                     : isOverdue
-                                    ? const Color(0xFFE53935)
-                                    : const Color(0xFF1E293B).withOpacity(0.5),
+                                    ? colorScheme.error
+                                    : theme.textTheme.bodyMedium!.color!,
                                 fontWeight: FontWeight.w400,
                               ),
                             ),
@@ -422,15 +445,15 @@ class _TasksViewState extends State<TasksView> {
                             vertical: 3,
                           ),
                           decoration: BoxDecoration(
-                            color: const Color(0xFFE53935).withOpacity(0.12),
+                            color: colorScheme.error.withValues(alpha: 0.12),
                             borderRadius: BorderRadius.circular(6),
                           ),
-                          child: const Text(
+                          child: Text(
                             'Overdue',
                             style: TextStyle(
                               fontSize: 8,
                               fontWeight: FontWeight.w700,
-                              color: Color(0xFFE53935),
+                              color: colorScheme.error,
                             ),
                           ),
                         ),
@@ -440,14 +463,14 @@ class _TasksViewState extends State<TasksView> {
                 ),
                 if (!isDone)
                   Container(
-                    decoration: const BoxDecoration(
-                      color: Color(0xFF4C9EEB),
+                    decoration: BoxDecoration(
+                      color: colorScheme.primary,
                       shape: BoxShape.circle,
                     ),
                     child: IconButton(
-                      icon: const Icon(
+                      icon: Icon(
                         Icons.play_arrow,
-                        color: Colors.white,
+                        color: colorScheme.onPrimary,
                         size: 16,
                       ),
                       onPressed: () {
@@ -467,9 +490,9 @@ class _TasksViewState extends State<TasksView> {
                   )
                 else
                   IconButton(
-                    icon: const Icon(
+                    icon: Icon(
                       Icons.delete_outline,
-                      color: Colors.red,
+                      color: colorScheme.error,
                       size: 20,
                     ),
                     onPressed: () async {
@@ -521,8 +544,15 @@ class _TasksViewState extends State<TasksView> {
     }
   }
 
-  Widget _buildFilterChip(TaskFilter filter, String label) {
+  Widget _buildFilterChip(
+    BuildContext context,
+    TaskFilter filter,
+    String label,
+  ) {
     final isSelected = _selectedFilter == filter;
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
     return InkWell(
       onTap: () {
         setState(() {
@@ -534,18 +564,18 @@ class _TasksViewState extends State<TasksView> {
         duration: const Duration(milliseconds: 180),
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
         decoration: BoxDecoration(
-          color: isSelected ? const Color(0xFF4C9EEB) : Colors.white,
+          color: isSelected ? colorScheme.primary : theme.cardColor,
           borderRadius: BorderRadius.circular(18),
           border: Border.all(
-            color: isSelected
-                ? const Color(0xFF4C9EEB)
-                : const Color(0xFFE2E8F0),
+            color: isSelected ? colorScheme.primary : theme.dividerColor,
           ),
         ),
         child: Text(
           label,
           style: TextStyle(
-            color: isSelected ? Colors.white : const Color(0xFF1E293B),
+            color: isSelected
+                ? colorScheme.onPrimary
+                : theme.textTheme.bodyLarge!.color!,
             fontSize: 10,
             fontWeight: FontWeight.w600,
           ),

@@ -158,7 +158,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
                       alignment: Alignment.centerRight,
                       padding: const EdgeInsets.only(right: 18),
                       decoration: BoxDecoration(
-                        color: const Color(0xFFE53935).withOpacity(0.15),
+                        color: const Color(0xFFE53935).withValues(alpha: 0.15),
                         borderRadius: BorderRadius.circular(16),
                       ),
                       child: const Icon(
@@ -176,12 +176,14 @@ class _NotificationsPageState extends State<NotificationsPage> {
                         decoration: BoxDecoration(
                           color: notification.isRead
                               ? Colors.white
-                              : const Color(0xFF4C9EEB).withOpacity(0.08),
+                              : const Color(0xFF4C9EEB).withValues(alpha: 0.08),
                           borderRadius: BorderRadius.circular(16),
                           border: Border.all(
                             color: notification.isRead
                                 ? const Color(0xFFE5E7EB)
-                                : const Color(0xFF4C9EEB).withOpacity(0.35),
+                                : const Color(
+                                    0xFF4C9EEB,
+                                  ).withValues(alpha: 0.35),
                           ),
                         ),
                         child: Row(
@@ -191,7 +193,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
                               width: 38,
                               height: 38,
                               decoration: BoxDecoration(
-                                color: visual.color.withOpacity(0.12),
+                                color: visual.color.withValues(alpha: 0.12),
                                 shape: BoxShape.circle,
                               ),
                               child: Icon(
@@ -257,7 +259,8 @@ class _NotificationsPageState extends State<NotificationsPage> {
                     ),
                   );
                 },
-                separatorBuilder: (_, __) => const SizedBox(height: 10),
+                separatorBuilder: (context, index) =>
+                    const SizedBox(height: 10),
                 itemCount: _notifications.length,
               ),
       ),

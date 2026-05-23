@@ -1,20 +1,57 @@
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:one_tap/features/auth/view/login_page.dart';
+import 'package:one_tap/features/auth/providers/auth_provider.dart';
 import 'package:one_tap/features/profile/view/contact_us/contact_us_view.dart';
 import 'package:one_tap/features/profile/view/privacy_policy_view.dart';
+import 'package:one_tap/features/profile/view/settings_page.dart';
+
 import '../../../../core/models/task_model.dart'; // import globalTasks
 import '../../../../core/models/user_activity_model.dart'; // import globalUserActivity
 
-class ProfilePage extends StatefulWidget {
+class ProfilePage extends ConsumerStatefulWidget {
   const ProfilePage({super.key});
 
   @override
-  State<ProfilePage> createState() => _ProfilePageState();
+  ConsumerState<ProfilePage> createState() => _ProfilePageState();
 }
 
-class _ProfilePageState extends State<ProfilePage> {
+class _ProfilePageState extends ConsumerState<ProfilePage> {
   User? get _currentUser => FirebaseAuth.instance.currentUser;
+
+  bool _isEditingMode = false;
+  final TextEditingController _nameController = TextEditingController();
+
+  @override
+  void dispose() {
+    _nameController.dispose();
+    super.dispose();
+  }
+
+  void _toggleEditMode() {
+    setState(() {
+      _isEditingMode = !_isEditingMode;
+      if (_isEditingMode) {
+        _nameController.text = ref.read(userNameProvider);
+      }
+    });
+  }
+
+  void _saveProfile() {
+    final newName = _nameController.text.trim();
+    if (newName.isNotEmpty) {
+      ref.read(userNameProvider.notifier).updateName(newName);
+    }
+    setState(() {
+      _isEditingMode = false;
+    });
+  }
+
+  void _cancelEdit() {
+    setState(() {
+      _isEditingMode = false;
+    });
+  }
 
   int get completedTasksCount {
     return globalTasks.where((task) => task.isDone).length;
@@ -37,16 +74,6 @@ class _ProfilePageState extends State<ProfilePage> {
     return globalUserActivity.calculateStreak();
   }
 
-  String get _displayName {
-    final name = _currentUser?.displayName?.trim();
-    if (name != null && name.isNotEmpty) return name;
-
-    final email = _currentUser?.email?.trim();
-    if (email != null && email.isNotEmpty) return email.split('@').first;
-
-    return 'User';
-  }
-
   String get _displayEmail {
     final email = _currentUser?.email?.trim();
     if (email != null && email.isNotEmpty) return email;
@@ -56,78 +83,141 @@ class _ProfilePageState extends State<ProfilePage> {
 
   @override
   Widget build(BuildContext context) {
+    final displayName = ref.watch(userNameProvider);
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
     return SingleChildScrollView(
       padding: const EdgeInsets.only(left: 24, right: 24, top: 40, bottom: 120),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
+          Text(
             'Profile',
             style: TextStyle(
               fontSize: 24,
               fontWeight: FontWeight.bold,
-              color: Color(0xFF1D2F44),
+              color: theme.textTheme.bodyLarge!.color!,
             ),
           ),
           const SizedBox(height: 24),
 
           // User Card
-          Container(
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(20),
-              boxShadow: [
-                BoxShadow(
-                  color: const Color(0xFF4C9EEB).withOpacity(0.05),
-                  blurRadius: 20,
-                  offset: const Offset(0, 8),
-                ),
-              ],
-            ),
-            child: Row(
-              children: [
-                Container(
-                  width: 56,
-                  height: 56,
-                  decoration: BoxDecoration(
-                    color: const Color(0xFF67ADF6),
-                    borderRadius: BorderRadius.circular(16),
+          GestureDetector(
+            onTap: _isEditingMode ? null : _toggleEditMode,
+            child: AnimatedContainer(
+              duration: const Duration(milliseconds: 300),
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: theme.cardColor,
+                borderRadius: BorderRadius.circular(20),
+                border: _isEditingMode
+                    ? Border.all(color: const Color(0xFF4C9EEB), width: 2)
+                    : Border.all(color: Colors.transparent, width: 2),
+                boxShadow: [
+                  BoxShadow(
+                    color: const Color(0xFF4C9EEB).withValues(alpha: 0.05),
+                    blurRadius: 20,
+                    offset: const Offset(0, 8),
                   ),
-                  child: const Center(
-                    child: Text(
-                      'M',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold,
+                ],
+              ),
+              child: Column(
+                children: [
+                  Row(
+                    children: [
+                      Container(
+                        width: 56,
+                        height: 56,
+                        decoration: BoxDecoration(
+                          color: const Color(0xFF67ADF6),
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                        child: Center(
+                          child: Text(
+                            'M',
+                            style: TextStyle(
+                              color: colorScheme.onPrimary,
+                              fontSize: 24,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
                       ),
-                    ),
+                      const SizedBox(width: 16),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            if (_isEditingMode)
+                              TextFormField(
+                                controller: _nameController,
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                  color: theme.textTheme.bodyLarge!.color!,
+                                ),
+                                decoration: const InputDecoration(
+                                  isDense: true,
+                                  contentPadding: EdgeInsets.symmetric(
+                                    vertical: 4,
+                                    horizontal: 0,
+                                  ),
+                                  border: UnderlineInputBorder(),
+                                ),
+                              )
+                            else
+                              Text(
+                                displayName,
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                  color: theme.textTheme.bodyLarge!.color!,
+                                ),
+                              ),
+                            const SizedBox(height: 4),
+                            Text(
+                              _displayEmail,
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: theme.textTheme.bodyMedium!.color!,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
                   ),
-                ),
-                const SizedBox(width: 16),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      _displayName,
-                      style: const TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                        color: Color(0xFF0F172A),
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      _displayEmail,
-                      style: const TextStyle(
-                        fontSize: 12,
-                        color: Color(0xFF64748B),
-                      ),
+                  if (_isEditingMode) ...[
+                    const SizedBox(height: 16),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        TextButton(
+                          onPressed: _cancelEdit,
+                          style: TextButton.styleFrom(
+                            foregroundColor: theme.textTheme.bodyMedium!.color!,
+                          ),
+                          child: const Text('Cancel'),
+                        ),
+                        const SizedBox(width: 8),
+                        ElevatedButton(
+                          onPressed: _saveProfile,
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(0xFF60A5FA),
+                            foregroundColor: colorScheme.onPrimary,
+                            elevation: 0,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                          ),
+                          child: const Text('Save'),
+                        ),
+                      ],
                     ),
                   ],
-                ),
-              ],
+                ],
+              ),
             ),
           ),
           const SizedBox(height: 20),
@@ -137,6 +227,7 @@ class _ProfilePageState extends State<ProfilePage> {
             children: [
               Expanded(
                 child: _buildStatCard(
+                  context,
                   Icons.local_fire_department_outlined,
                   '$dayStreak',
                   'DAY STREAK',
@@ -145,6 +236,7 @@ class _ProfilePageState extends State<ProfilePage> {
               const SizedBox(width: 12),
               Expanded(
                 child: _buildStatCard(
+                  context,
                   Icons.schedule_outlined,
                   hoursStudied,
                   'STUDIED',
@@ -153,6 +245,7 @@ class _ProfilePageState extends State<ProfilePage> {
               const SizedBox(width: 12),
               Expanded(
                 child: _buildStatCard(
+                  context,
                   Icons.check_circle_outline,
                   '$completedTasksCount',
                   'TASKS',
@@ -165,11 +258,11 @@ class _ProfilePageState extends State<ProfilePage> {
           // Settings Card
           Container(
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: theme.cardColor,
               borderRadius: BorderRadius.circular(20),
               boxShadow: [
                 BoxShadow(
-                  color: const Color(0xFF4C9EEB).withOpacity(0.05),
+                  color: const Color(0xFF4C9EEB).withValues(alpha: 0.05),
                   blurRadius: 20,
                   offset: const Offset(0, 8),
                 ),
@@ -178,41 +271,27 @@ class _ProfilePageState extends State<ProfilePage> {
             child: Column(
               children: [
                 _buildSettingsTile(
-                  icon: Icons.edit_outlined,
-                  title: 'Edit Profile',
+                  context,
+                  icon: Icons.settings_outlined,
+                  title: 'Settings',
                   showChevron: true,
                   onTap: () {
-                    // TODO: Navigate to Edit Profile
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const SettingsPage(),
+                      ),
+                    );
                   },
                 ),
                 Divider(
                   height: 1,
-                  color: Colors.grey.withOpacity(0.1),
+                  color: theme.dividerColor.withValues(alpha: 0.1),
                   indent: 56,
                   endIndent: 16,
                 ),
                 _buildSettingsTile(
-                  icon: Icons.dark_mode_outlined,
-                  title: 'Dark Mode',
-                  trailing: Switch(
-                    value: false, // TODO: Replace with actual theme state
-                    onChanged: (value) {
-                      // TODO: Toggle Dark Mode
-                    },
-                    activeThumbColor: const Color(0xFF60A5FA),
-                    activeTrackColor: const Color(0xFFEBF4FC),
-                    inactiveThumbColor: Colors.white,
-                    inactiveTrackColor: const Color(0xFFE2E8F0),
-                  ),
-                  onTap: () {},
-                ),
-                Divider(
-                  height: 1,
-                  color: Colors.grey.withOpacity(0.1),
-                  indent: 56,
-                  endIndent: 16,
-                ),
-                _buildSettingsTile(
+                  context,
                   icon: Icons.contact_support_outlined,
                   title: 'Contact Us',
                   showChevron: true,
@@ -227,11 +306,12 @@ class _ProfilePageState extends State<ProfilePage> {
                 ),
                 Divider(
                   height: 1,
-                  color: Colors.grey.withOpacity(0.1),
+                  color: theme.dividerColor.withValues(alpha: 0.1),
                   indent: 56,
                   endIndent: 16,
                 ),
                 _buildSettingsTile(
+                  context,
                   icon: Icons.privacy_tip_outlined,
                   title: 'Privacy Policy',
                   showChevron: true,
@@ -247,58 +327,26 @@ class _ProfilePageState extends State<ProfilePage> {
               ],
             ),
           ),
-          const SizedBox(height: 24),
-
-          // Logout Button
-          GestureDetector(
-            onTap: () async {
-              await FirebaseAuth.instance.signOut();
-              if (context.mounted) {
-                Navigator.pushAndRemoveUntil(
-                  context,
-                  MaterialPageRoute(builder: (context) => const LoginPage()),
-                  (route) => false,
-                );
-              }
-            },
-            child: Container(
-              width: double.infinity,
-              padding: const EdgeInsets.symmetric(vertical: 14),
-              decoration: BoxDecoration(
-                color: const Color(0xFFF1F5F9),
-                borderRadius: BorderRadius.circular(20),
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: const [
-                  Icon(Icons.logout, color: Color(0xFFEF4444), size: 18),
-                  SizedBox(width: 8),
-                  Text(
-                    'Logout',
-                    style: TextStyle(
-                      color: Color(0xFFEF4444),
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
         ],
       ),
     );
   }
 
-  Widget _buildStatCard(IconData icon, String value, String label) {
+  Widget _buildStatCard(
+    BuildContext context,
+    IconData icon,
+    String value,
+    String label,
+  ) {
+    final theme = Theme.of(context);
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: theme.cardColor,
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: const Color(0xFF4C9EEB).withOpacity(0.05),
+            color: const Color(0xFF4C9EEB).withValues(alpha: 0.05),
             blurRadius: 20,
             offset: const Offset(0, 8),
           ),
@@ -310,19 +358,19 @@ class _ProfilePageState extends State<ProfilePage> {
           const SizedBox(height: 8),
           Text(
             value,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.bold,
-              color: Color(0xFF0F172A),
+              color: theme.textTheme.bodyLarge!.color!,
             ),
           ),
           const SizedBox(height: 2),
           Text(
             label,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 9,
               fontWeight: FontWeight.w700,
-              color: Color(0xFF94A3B8),
+              color: theme.textTheme.bodyMedium!.color!,
               letterSpacing: 0.5,
             ),
           ),
@@ -331,13 +379,16 @@ class _ProfilePageState extends State<ProfilePage> {
     );
   }
 
-  Widget _buildSettingsTile({
+  Widget _buildSettingsTile(
+    BuildContext context, {
     required IconData icon,
     required String title,
     Widget? trailing,
     bool showChevron = false,
     required VoidCallback onTap,
   }) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
     return InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(20),
@@ -349,7 +400,7 @@ class _ProfilePageState extends State<ProfilePage> {
               width: 32,
               height: 32,
               decoration: BoxDecoration(
-                color: const Color(0xFFEBF4FC),
+                color: colorScheme.primary.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(10),
               ),
               child: Icon(icon, color: const Color(0xFF67ADF6), size: 18),
@@ -358,18 +409,18 @@ class _ProfilePageState extends State<ProfilePage> {
             Expanded(
               child: Text(
                 title,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w500,
-                  color: Color(0xFF0F172A),
+                  color: theme.textTheme.bodyLarge!.color!,
                 ),
               ),
             ),
             ?trailing,
             if (showChevron)
-              const Icon(
+              Icon(
                 Icons.chevron_right,
-                color: Color(0xFF94A3B8),
+                color: theme.textTheme.bodyMedium!.color!,
                 size: 18,
               ),
           ],

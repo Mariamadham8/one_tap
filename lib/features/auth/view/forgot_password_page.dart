@@ -157,7 +157,7 @@ class _ForgotPasswordPageState extends ConsumerState<ForgotPasswordPage> {
         ),
         if (_isLoading)
           Container(
-            color: Colors.black.withOpacity(0.3),
+            color: Colors.black.withValues(alpha: 0.3),
             child: const Center(
               child: CircularProgressIndicator(color: Color(0xFF67ADF6)),
             ),

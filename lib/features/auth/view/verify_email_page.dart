@@ -110,7 +110,7 @@ class _VerifyEmailPageState extends ConsumerState<VerifyEmailPage> {
                 width: 100,
                 height: 100,
                 decoration: BoxDecoration(
-                  color: const Color(0xFF67ADF6).withOpacity(0.15),
+                  color: const Color(0xFF67ADF6).withValues(alpha: 0.3),
                   shape: BoxShape.circle,
                 ),
                 child: const Icon(

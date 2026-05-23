@@ -1,4 +1,4 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import '../../../../core/models/subject_model.dart';
 import '../../../../core/models/task_model.dart';
 
@@ -49,8 +49,12 @@ class _AddTaskPageState extends State<AddTaskPage> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
     return Dialog(
-      backgroundColor: Colors.white,
+      backgroundColor:
+          theme.dialogTheme.backgroundColor ?? theme.colorScheme.surface,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14.0)),
       insetPadding: const EdgeInsets.symmetric(
         horizontal: 14.0,
@@ -68,10 +72,10 @@ class _AddTaskPageState extends State<AddTaskPage> {
               children: [
                 Text(
                   widget.isEditMode ? 'Edit Task' : 'New Task',
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 15,
                     fontWeight: FontWeight.w500,
-                    color: Color(0xFF1E293B),
+                    color: theme.textTheme.bodyLarge!.color!,
                   ),
                 ),
                 Row(
@@ -81,18 +85,18 @@ class _AddTaskPageState extends State<AddTaskPage> {
                         onTap: () {
                           Navigator.pop(context, 'delete');
                         },
-                        child: const Icon(
+                        child: Icon(
                           Icons.delete_outline,
-                          color: Colors.red,
+                          color: colorScheme.error,
                           size: 20,
                         ),
                       ),
                     if (widget.isEditMode) const SizedBox(width: 12),
                     GestureDetector(
                       onTap: () => Navigator.pop(context),
-                      child: const Icon(
+                      child: Icon(
                         Icons.close,
-                        color: Color(0xFF64748B),
+                        color: theme.textTheme.bodyMedium!.color!,
                         size: 18,
                       ),
                     ),
@@ -103,22 +107,27 @@ class _AddTaskPageState extends State<AddTaskPage> {
             const SizedBox(height: 10),
 
             // Title Input
-            const Text(
+            Text(
               'Title',
               style: TextStyle(
                 fontSize: 11,
                 fontWeight: FontWeight.w500,
-                color: Color(0xFF1E293B),
+                color: theme.textTheme.bodyLarge!.color!,
               ),
             ),
             const SizedBox(height: 4),
             TextField(
               controller: _titleController,
-              style: const TextStyle(fontSize: 11),
+              style: TextStyle(
+                fontSize: 11,
+                color: theme.textTheme.bodyLarge!.color!,
+              ),
               decoration: InputDecoration(
                 hintText: 'What do you want to study?',
                 hintStyle: TextStyle(
-                  color: const Color(0xFF64748B).withOpacity(0.8),
+                  color: theme.textTheme.bodyMedium!.color!.withValues(
+                    alpha: 0.8,
+                  ),
                   fontSize: 11,
                 ),
                 contentPadding: const EdgeInsets.symmetric(
@@ -128,45 +137,45 @@ class _AddTaskPageState extends State<AddTaskPage> {
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
                   borderSide: BorderSide(
-                    color: const Color(0xFF4C9EEB).withOpacity(0.2),
+                    color: colorScheme.primary.withValues(alpha: 0.2),
                   ),
                 ),
                 enabledBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
                   borderSide: BorderSide(
-                    color: const Color(0xFF4C9EEB).withOpacity(0.5),
+                    color: colorScheme.primary.withValues(alpha: 0.5),
                     width: 1.2,
                   ),
                 ),
                 focusedBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
-                  borderSide: const BorderSide(
-                    color: Color(0xFF4C9EEB),
+                  borderSide: BorderSide(
+                    color: colorScheme.primary,
                     width: 1.2,
                   ),
                 ),
                 filled: true,
-                fillColor: Colors.white,
+                fillColor: theme.cardColor,
               ),
             ),
             const SizedBox(height: 10),
 
             // Subject Dropdown
-            const Text(
+            Text(
               'Subject',
               style: TextStyle(
                 fontSize: 11,
                 fontWeight: FontWeight.w500,
-                color: Color(0xFF1E293B),
+                color: theme.textTheme.bodyLarge!.color!,
               ),
             ),
             const SizedBox(height: 4),
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 10),
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: theme.cardColor,
                 borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: const Color(0xFFE2E8F0)),
+                border: Border.all(color: theme.dividerColor),
               ),
               child: DropdownButtonHideUnderline(
                 child: globalSubjects.isEmpty
@@ -180,9 +189,10 @@ class _AddTaskPageState extends State<AddTaskPage> {
                     : DropdownButton<SubjectModel>(
                         value: _selectedSubject,
                         isExpanded: true,
-                        icon: const Icon(
+                        dropdownColor: theme.cardColor,
+                        icon: Icon(
                           Icons.keyboard_arrow_down,
-                          color: Color(0xFF64748B),
+                          color: theme.textTheme.bodyMedium!.color!,
                           size: 18,
                         ),
                         items: globalSubjects.map((SubjectModel subject) {
@@ -193,7 +203,7 @@ class _AddTaskPageState extends State<AddTaskPage> {
                                 Container(
                                   padding: const EdgeInsets.all(4),
                                   decoration: BoxDecoration(
-                                    color: subject.color.withOpacity(0.2),
+                                    color: subject.color.withValues(alpha: 0.2),
                                     shape: BoxShape.circle,
                                   ),
                                   child: Text(
@@ -204,8 +214,8 @@ class _AddTaskPageState extends State<AddTaskPage> {
                                 const SizedBox(width: 10),
                                 Text(
                                   subject.title,
-                                  style: const TextStyle(
-                                    color: Color(0xFF1E293B),
+                                  style: TextStyle(
+                                    color: theme.textTheme.bodyLarge!.color!,
                                     fontSize: 11,
                                   ),
                                 ),
@@ -226,12 +236,12 @@ class _AddTaskPageState extends State<AddTaskPage> {
             const SizedBox(height: 10),
 
             // Due date
-            const Text(
+            Text(
               'Due date',
               style: TextStyle(
                 fontSize: 11,
                 fontWeight: FontWeight.w500,
-                color: Color(0xFF1E293B),
+                color: theme.textTheme.bodyLarge!.color!,
               ),
             ),
             const SizedBox(height: 6),
@@ -266,16 +276,16 @@ class _AddTaskPageState extends State<AddTaskPage> {
                   vertical: 10,
                 ),
                 decoration: BoxDecoration(
-                  color: Colors.white,
+                  color: theme.cardColor,
                   borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: const Color(0xFFE2E8F0)),
+                  border: Border.all(color: theme.dividerColor),
                 ),
                 child: Row(
                   children: [
-                    const Icon(
+                    Icon(
                       Icons.event_outlined,
                       size: 16,
-                      color: Color(0xFF64748B),
+                      color: theme.textTheme.bodyMedium!.color!,
                     ),
                     const SizedBox(width: 8),
                     Expanded(
@@ -286,8 +296,8 @@ class _AddTaskPageState extends State<AddTaskPage> {
                         style: TextStyle(
                           fontSize: 11,
                           color: _selectedDueDate == null
-                              ? const Color(0xFF64748B)
-                              : const Color(0xFF1E293B),
+                              ? theme.textTheme.bodyMedium!.color!
+                              : theme.textTheme.bodyLarge!.color!,
                         ),
                       ),
                     ),
@@ -298,17 +308,17 @@ class _AddTaskPageState extends State<AddTaskPage> {
                             _selectedDueDate = null;
                           });
                         },
-                        child: const Icon(
+                        child: Icon(
                           Icons.close,
                           size: 14,
-                          color: Color(0xFF64748B),
+                          color: theme.textTheme.bodyMedium!.color!,
                         ),
                       )
                     else
-                      const Icon(
+                      Icon(
                         Icons.keyboard_arrow_right,
                         size: 16,
-                        color: Color(0xFF64748B),
+                        color: theme.textTheme.bodyMedium!.color!,
                       ),
                   ],
                 ),
@@ -319,18 +329,18 @@ class _AddTaskPageState extends State<AddTaskPage> {
             // Estimated time
             Row(
               children: [
-                const Icon(
+                Icon(
                   Icons.access_time_outlined,
                   size: 14,
-                  color: Color(0xFF1E293B),
+                  color: theme.textTheme.bodyLarge!.color!,
                 ),
                 const SizedBox(width: 4),
-                const Text(
+                Text(
                   'Estimated time',
                   style: TextStyle(
                     fontSize: 11,
                     fontWeight: FontWeight.w500,
-                    color: Color(0xFF1E293B),
+                    color: theme.textTheme.bodyLarge!.color!,
                   ),
                 ),
               ],
@@ -354,16 +364,16 @@ class _AddTaskPageState extends State<AddTaskPage> {
                     ),
                     decoration: BoxDecoration(
                       color: isSelected
-                          ? const Color(0xFF4C9EEB)
-                          : const Color(0xFFEAF4FC),
+                          ? colorScheme.primary
+                          : colorScheme.primary.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Text(
                       '$time min',
                       style: TextStyle(
                         color: isSelected
-                            ? Colors.white
-                            : const Color(0xFF4C9EEB),
+                            ? colorScheme.onPrimary
+                            : colorScheme.primary,
                         fontWeight: isSelected
                             ? FontWeight.w500
                             : FontWeight.w400,
@@ -384,15 +394,17 @@ class _AddTaskPageState extends State<AddTaskPage> {
                     onPressed: () => Navigator.pop(context),
                     style: TextButton.styleFrom(
                       padding: const EdgeInsets.symmetric(vertical: 10),
-                      backgroundColor: const Color(0xFFF1F5F9),
+                      backgroundColor: colorScheme.primary.withValues(
+                        alpha: 0.1,
+                      ),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(14),
                       ),
                     ),
-                    child: const Text(
+                    child: Text(
                       'Cancel',
                       style: TextStyle(
-                        color: Color(0xFF4C9EEB),
+                        color: colorScheme.primary,
                         fontSize: 11,
                         fontWeight: FontWeight.w500,
                       ),
@@ -419,15 +431,15 @@ class _AddTaskPageState extends State<AddTaskPage> {
                     style: ElevatedButton.styleFrom(
                       elevation: 0,
                       padding: const EdgeInsets.symmetric(vertical: 10),
-                      backgroundColor: const Color(0xFF90CAFE),
+                      backgroundColor: colorScheme.primary,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(14),
                       ),
                     ),
                     child: Text(
                       widget.isEditMode ? 'Save Task' : 'Add Task',
-                      style: const TextStyle(
-                        color: Colors.white,
+                      style: TextStyle(
+                        color: colorScheme.onPrimary,
                         fontSize: 11,
                         fontWeight: FontWeight.w500,
                       ),
