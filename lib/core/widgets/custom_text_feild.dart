@@ -25,15 +25,26 @@ class _CustomTextFieldState extends State<CustomTextField> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
     return TextFormField(
       controller: widget.controller,
       keyboardType: widget.keyboardType,
       validator: widget.validator,
       obscureText: widget.isPassword ? _obscure : false,
       autovalidateMode: AutovalidateMode.onUserInteraction,
+      style: const TextStyle(
+        color: Color(0xFF1E293B),
+        fontSize: 13,
+      ),
+      cursorColor: colorScheme.primary,
       decoration: InputDecoration(
         hintText: widget.hint,
-        hintStyle: const TextStyle(color: Colors.grey, fontSize: 13),
+        hintStyle: const TextStyle(
+          color: Colors.grey,
+          fontSize: 13,
+        ),
         filled: true,
         fillColor: Colors.white,
         suffixIcon: widget.isPassword
@@ -42,7 +53,7 @@ class _CustomTextFieldState extends State<CustomTextField> {
                   _obscure
                       ? Icons.visibility_off_outlined
                       : Icons.visibility_outlined,
-                  color: Colors.grey,
+                  color: theme.textTheme.bodySmall!.color,
                   size: 20,
                 ),
                 onPressed: () => setState(() => _obscure = !_obscure),
@@ -50,19 +61,21 @@ class _CustomTextFieldState extends State<CustomTextField> {
             : null,
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(16),
-          borderSide: BorderSide.none,
+          borderSide: BorderSide(
+            color: colorScheme.primary.withValues(alpha: 0.15),
+          ),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(16),
-          borderSide: const BorderSide(color: Color(0xFF67ADF6), width: 1.5),
+          borderSide: BorderSide(color: colorScheme.primary, width: 1.5),
         ),
         errorBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(16),
-          borderSide: const BorderSide(color: Color(0xFFE53935), width: 1.5),
+          borderSide: BorderSide(color: colorScheme.error, width: 1.5),
         ),
         focusedErrorBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(16),
-          borderSide: const BorderSide(color: Color(0xFFE53935), width: 1.5),
+          borderSide: BorderSide(color: colorScheme.error, width: 1.5),
         ),
         contentPadding: const EdgeInsets.symmetric(
           horizontal: 16,

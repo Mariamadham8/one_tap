@@ -8,6 +8,9 @@ class FlipCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
     return GestureDetector(
       onTap: () {
         showModalBottomSheet(
@@ -21,9 +24,18 @@ class FlipCard extends StatelessWidget {
         margin: const EdgeInsets.only(bottom: 16),
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: Colors.white.withValues(alpha: 0.08),
+          color: theme.cardColor,
           borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: Colors.white24),
+          border: Border.all(
+            color: colorScheme.primary.withValues(alpha: 0.15),
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: colorScheme.primary.withValues(alpha: 0.05),
+              blurRadius: 20,
+              offset: const Offset(0, 8),
+            ),
+          ],
         ),
         child: Row(
           children: [
@@ -39,8 +51,8 @@ class FlipCard extends StatelessWidget {
             Expanded(
               child: Text(
                 member["name"] ?? "",
-                style: const TextStyle(
-                  color: Colors.black87,
+                style: TextStyle(
+                  color: theme.textTheme.bodyLarge!.color,
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
                 ),
@@ -48,9 +60,9 @@ class FlipCard extends StatelessWidget {
             ),
 
             /// 👉 السهم
-            const Icon(
+            Icon(
               Icons.arrow_forward_ios,
-              color: Colors.black87,
+              color: theme.textTheme.bodyMedium!.color,
               size: 16,
             ),
           ],

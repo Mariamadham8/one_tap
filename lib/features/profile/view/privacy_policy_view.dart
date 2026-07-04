@@ -82,34 +82,29 @@ class _PrivacyPolicyViewState extends State<PrivacyPolicyView>
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
     return Scaffold(
       body: Stack(
         children: [
-          /// 💙 Background
-          Container(
-            decoration: const BoxDecoration(
-              gradient: LinearGradient(
-                colors: [Color(0xFF4C9EEB), Color(0xFF67ADF6)],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-              ),
-            ),
-          ),
-
           /// 📜 Scroll Content
           CustomScrollView(
             controller: _scrollController,
             slivers: [
               /// 📌 Sticky Header
-              const SliverAppBar(
+              SliverAppBar(
                 pinned: true,
-                backgroundColor: Color(0xFF4C9EEB),
-                foregroundColor: Colors.white,
+                backgroundColor: theme.appBarTheme.backgroundColor,
+                foregroundColor: theme.appBarTheme.foregroundColor,
                 elevation: 0,
                 centerTitle: true,
                 title: Text(
                   "Privacy Policy",
-                  style: TextStyle(fontWeight: FontWeight.bold),
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: theme.appBarTheme.foregroundColor,
+                  ),
                 ),
               ),
 
@@ -151,11 +146,11 @@ class _PrivacyPolicyViewState extends State<PrivacyPolicyView>
                       const SizedBox(height: 20),
 
                       /// 💬 CTA Text
-                      const Text(
+                      Text(
                         "Have questions about your privacy or account data? Contact us directly through our development team.",
                         textAlign: TextAlign.center,
                         style: TextStyle(
-                          color: Color(0xFF1E293B),
+                          color: theme.textTheme.bodySmall!.color,
                           fontSize: 14,
                         ),
                       ),
@@ -168,8 +163,8 @@ class _PrivacyPolicyViewState extends State<PrivacyPolicyView>
                         width: double.infinity,
                         child: ElevatedButton(
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color(0xFF4C9EEB),
-                            foregroundColor: Colors.white,
+                            backgroundColor: colorScheme.primary,
+                            foregroundColor: colorScheme.onPrimary,
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(15),
                             ),
@@ -206,8 +201,8 @@ class _PrivacyPolicyViewState extends State<PrivacyPolicyView>
             right: 0,
             child: LinearProgressIndicator(
               value: scrollProgress,
-              backgroundColor: Colors.white24,
-              color: Colors.black87,
+              backgroundColor: colorScheme.primary.withValues(alpha: 0.15),
+              color: colorScheme.primary,
               minHeight: 3,
             ),
           ),
@@ -218,21 +213,34 @@ class _PrivacyPolicyViewState extends State<PrivacyPolicyView>
 
   /// 💎 Section Widget
   Widget _section({required String title, required String content}) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.95),
+        color: theme.cardColor,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: const Color(0xFF75B9F0), width: 1.5),
+        border: Border.all(
+          color: colorScheme.primary.withValues(alpha: 0.3),
+          width: 1.5,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: colorScheme.primary.withValues(alpha: 0.05),
+            blurRadius: 20,
+            offset: const Offset(0, 8),
+          ),
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
             title,
-            style: const TextStyle(
-              color: Color(0xFF4C9EEB),
+            style: TextStyle(
+              color: colorScheme.primary,
               fontSize: 18,
               fontWeight: FontWeight.bold,
             ),
@@ -240,8 +248,8 @@ class _PrivacyPolicyViewState extends State<PrivacyPolicyView>
           const SizedBox(height: 8),
           Text(
             content,
-            style: const TextStyle(
-              color: Color(0xFF1E293B),
+            style: TextStyle(
+              color: theme.textTheme.bodyLarge!.color,
               height: 1.5,
             ),
           ),

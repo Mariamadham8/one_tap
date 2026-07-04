@@ -22,12 +22,15 @@ class ProfilePopup extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
     return Container(
       height: MediaQuery.of(context).size.height * 0.75,
       padding: const EdgeInsets.all(20),
-      decoration: const BoxDecoration(
-        color: Color(0xFF1E2A38),
-        borderRadius: BorderRadius.vertical(top: Radius.circular(30)),
+      decoration: BoxDecoration(
+        color: theme.scaffoldBackgroundColor,
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(30)),
       ),
       child: Column(
         children: [
@@ -36,7 +39,7 @@ class ProfilePopup extends StatelessWidget {
             width: 40,
             height: 5,
             decoration: BoxDecoration(
-              color: Colors.white24,
+              color: theme.dividerColor,
               borderRadius: BorderRadius.circular(10),
             ),
           ),
@@ -54,10 +57,10 @@ class ProfilePopup extends StatelessWidget {
           /// 👤 الاسم
           Text(
             member["name"] ?? "",
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 22,
               fontWeight: FontWeight.bold,
-              color: Colors.white,
+              color: theme.textTheme.bodyLarge!.color,
             ),
           ),
 
@@ -66,8 +69,8 @@ class ProfilePopup extends StatelessWidget {
           /// 💼 الوظيفة
           Text(
             member["role"] ?? "",
-            style: const TextStyle(
-              color: Colors.white70,
+            style: TextStyle(
+              color: theme.textTheme.bodySmall!.color,
               fontSize: 16,
             ),
           ),
@@ -79,9 +82,10 @@ class ProfilePopup extends StatelessWidget {
             onTap: () => sendEmail(member["email"]),
             child: Text(
               member["email"] ?? "",
-              style: const TextStyle(
-                color: Colors.blueAccent,
+              style: TextStyle(
+                color: colorScheme.primary,
                 decoration: TextDecoration.underline,
+                decorationColor: colorScheme.primary,
               ),
             ),
           ),
@@ -93,13 +97,23 @@ class ProfilePopup extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               if (member["github"] != null)
-                icon(FontAwesomeIcons.github, () => openUrl(member["github"])),
+                _iconButton(
+                  context,
+                  FontAwesomeIcons.github,
+                  () => openUrl(member["github"]),
+                ),
               if (member["linkedin"] != null)
-                icon(FontAwesomeIcons.linkedin,
-                    () => openUrl(member["linkedin"])),
+                _iconButton(
+                  context,
+                  FontAwesomeIcons.linkedin,
+                  () => openUrl(member["linkedin"]),
+                ),
               if (member["portfolio"] != null)
-                icon(FontAwesomeIcons.addressCard,
-                    () => openUrl(member["portfolio"])),
+                _iconButton(
+                  context,
+                  FontAwesomeIcons.addressCard,
+                  () => openUrl(member["portfolio"]),
+                ),
             ],
           ),
 
@@ -108,6 +122,10 @@ class ProfilePopup extends StatelessWidget {
           /// ❌ Close Button
           ElevatedButton(
             onPressed: () => Navigator.pop(context),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: colorScheme.primary,
+              foregroundColor: colorScheme.onPrimary,
+            ),
             child: const Text("Close"),
           )
         ],
@@ -115,14 +133,17 @@ class ProfilePopup extends StatelessWidget {
     );
   }
 
-  Widget icon(IconData icon, VoidCallback onTap) {
+  Widget _iconButton(BuildContext context, IconData icon, VoidCallback onTap) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 10),
       child: GestureDetector(
         onTap: onTap,
         child: CircleAvatar(
-          backgroundColor: Colors.white10,
-          child: FaIcon(icon, color: Colors.white),
+          backgroundColor: colorScheme.primary.withValues(alpha: 0.1),
+          child: FaIcon(icon, color: colorScheme.primary),
         ),
       ),
     );
