@@ -127,13 +127,17 @@ class ProfilePopup extends StatelessWidget {
               foregroundColor: colorScheme.onPrimary,
             ),
             child: const Text("Close"),
-          )
+          ),
         ],
       ),
     );
   }
 
-  Widget _iconButton(BuildContext context, IconData icon, VoidCallback onTap) {
+  Widget _iconButton(
+    BuildContext context,
+    FaIconData icon,
+    VoidCallback onTap,
+  ) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
 

@@ -81,19 +81,19 @@ class _NotificationsPageState extends State<NotificationsPage> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
     return Scaffold(
-      backgroundColor: const Color(0xFFF8F9FA),
+      backgroundColor: theme.scaffoldBackgroundColor,
       appBar: AppBar(
         title: const Text(
           'Notifications',
-          style: TextStyle(
-            color: Color(0xFF1E293B),
-            fontWeight: FontWeight.w700,
-          ),
+          style: TextStyle(fontWeight: FontWeight.w700),
         ),
         centerTitle: true,
         backgroundColor: Colors.transparent,
-        foregroundColor: const Color(0xFF1E293B),
+        foregroundColor: colorScheme.onSurface,
         elevation: 0,
         actions: [
           if (_unreadCount > 0)
@@ -101,36 +101,26 @@ class _NotificationsPageState extends State<NotificationsPage> {
               onPressed: _markAllAsRead,
               child: const Text(
                 'Mark all read',
-                style: TextStyle(
-                  color: Color(0xFF4C9EEB),
-                  fontWeight: FontWeight.w600,
-                ),
+                style: TextStyle(fontWeight: FontWeight.w600),
               ),
             ),
         ],
       ),
       body: RefreshIndicator(
-        color: const Color(0xFF4C9EEB),
+        color: colorScheme.primary,
         onRefresh: _loadNotifications,
         child: _isLoading
-            ? const Center(
-                child: CircularProgressIndicator(color: Color(0xFF4C9EEB)),
-              )
+            ? const Center(child: CircularProgressIndicator())
             : _notifications.isEmpty
             ? ListView(
                 children: const [
                   SizedBox(height: 120),
-                  Icon(
-                    Icons.notifications_none_rounded,
-                    color: Color(0xFF75B9F0),
-                    size: 64,
-                  ),
+                  Icon(Icons.notifications_none_rounded, size: 64),
                   SizedBox(height: 12),
                   Center(
                     child: Text(
                       'No notifications right now',
                       style: TextStyle(
-                        color: Color(0xFF1E293B),
                         fontSize: 16,
                         fontWeight: FontWeight.w600,
                       ),
@@ -140,7 +130,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
                   Center(
                     child: Text(
                       'You are all caught up.',
-                      style: TextStyle(color: Color(0xFF64748B), fontSize: 13),
+                      style: TextStyle(fontSize: 13),
                     ),
                   ),
                 ],
@@ -158,12 +148,12 @@ class _NotificationsPageState extends State<NotificationsPage> {
                       alignment: Alignment.centerRight,
                       padding: const EdgeInsets.only(right: 18),
                       decoration: BoxDecoration(
-                        color: const Color(0xFFE53935).withValues(alpha: 0.15),
+                        color: colorScheme.error.withValues(alpha: 0.15),
                         borderRadius: BorderRadius.circular(16),
                       ),
                       child: const Icon(
                         Icons.delete_outline,
-                        color: Color(0xFFE53935),
+                        color: Colors.red,
                       ),
                     ),
                     onDismissed: (_) => _deleteNotification(notification),
@@ -175,15 +165,13 @@ class _NotificationsPageState extends State<NotificationsPage> {
                         padding: const EdgeInsets.all(14),
                         decoration: BoxDecoration(
                           color: notification.isRead
-                              ? Colors.white
-                              : const Color(0xFF4C9EEB).withValues(alpha: 0.08),
+                              ? theme.cardColor
+                              : colorScheme.primary.withValues(alpha: 0.08),
                           borderRadius: BorderRadius.circular(16),
                           border: Border.all(
                             color: notification.isRead
-                                ? const Color(0xFFE5E7EB)
-                                : const Color(
-                                    0xFF4C9EEB,
-                                  ).withValues(alpha: 0.35),
+                                ? theme.dividerColor
+                                : colorScheme.primary.withValues(alpha: 0.35),
                           ),
                         ),
                         child: Row(
@@ -213,7 +201,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
                                         child: Text(
                                           notification.title,
                                           style: TextStyle(
-                                            color: const Color(0xFF1E293B),
+                                            color: colorScheme.onSurface,
                                             fontWeight: notification.isRead
                                                 ? FontWeight.w600
                                                 : FontWeight.w700,
@@ -225,8 +213,8 @@ class _NotificationsPageState extends State<NotificationsPage> {
                                         Container(
                                           width: 8,
                                           height: 8,
-                                          decoration: const BoxDecoration(
-                                            color: Color(0xFF4C9EEB),
+                                          decoration: BoxDecoration(
+                                            color: colorScheme.primary,
                                             shape: BoxShape.circle,
                                           ),
                                         ),
@@ -235,8 +223,8 @@ class _NotificationsPageState extends State<NotificationsPage> {
                                   const SizedBox(height: 4),
                                   Text(
                                     notification.message,
-                                    style: const TextStyle(
-                                      color: Color(0xFF475569),
+                                    style: TextStyle(
+                                      color: colorScheme.onSurfaceVariant,
                                       fontSize: 12,
                                       height: 1.35,
                                     ),
@@ -244,8 +232,8 @@ class _NotificationsPageState extends State<NotificationsPage> {
                                   const SizedBox(height: 8),
                                   Text(
                                     _formatTimestamp(notification.createdAt),
-                                    style: const TextStyle(
-                                      color: Color(0xFF64748B),
+                                    style: TextStyle(
+                                      color: colorScheme.onSurfaceVariant,
                                       fontSize: 11,
                                       fontWeight: FontWeight.w500,
                                     ),
