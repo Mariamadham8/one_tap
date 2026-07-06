@@ -55,7 +55,7 @@ class _ContactUsViewState extends State<ContactUsView>
       "email": "Mahmoodwael888@gmail.com",
       "image": "assets/team/5.jpeg",
       "github": "https://github.com/MahmoudwaelElbadrawy?tab=repositories",
-      "linkedin": "https://www.linkedin.com/in/ahmedelsharabasy",
+      "linkedin": "https://www.linkedin.com/in/mahmoud-wael-2b001138a?utm_source=share_via&utm_content=profile&utm_medium=member_android",
       "portfolio": "",
     },
   ];

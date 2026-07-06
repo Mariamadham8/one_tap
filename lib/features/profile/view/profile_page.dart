@@ -2,9 +2,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:one_tap/features/auth/providers/auth_provider.dart';
+import 'package:one_tap/core/theme/theme_provider.dart';
+import 'package:one_tap/features/auth/view/login_page.dart';
 import 'package:one_tap/features/profile/view/contact_us/contact_us_view.dart';
 import 'package:one_tap/features/profile/view/privacy_policy_view.dart';
-import 'package:one_tap/features/profile/view/settings_page.dart';
 
 import '../../../../core/models/task_model.dart'; // import globalTasks
 import '../../../../core/models/user_activity_model.dart'; // import globalUserActivity
@@ -53,6 +54,17 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
     });
   }
 
+  Future<void> _handleLogout() async {
+    await FirebaseAuth.instance.signOut();
+    if (!mounted) return;
+
+    Navigator.pushAndRemoveUntil(
+      context,
+      MaterialPageRoute(builder: (context) => const LoginPage()),
+      (route) => false,
+    );
+  }
+
   int get completedTasksCount {
     return globalTasks.where((task) => task.isDone).length;
   }
@@ -84,6 +96,8 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
   @override
   Widget build(BuildContext context) {
     final displayName = ref.watch(userNameProvider);
+    final themeState = ref.watch(themeProvider);
+    final isDarkMode = themeState.isDarkMode;
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
 
@@ -294,17 +308,20 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
               children: [
                 _buildSettingsTile(
                   context,
-                  icon: Icons.settings_outlined,
-                  title: 'Settings',
-                  showChevron: true,
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const SettingsPage(),
-                      ),
-                    );
-                  },
+                  icon: Icons.dark_mode_outlined,
+                  title: 'Dark Mode',
+                  trailing: Switch(
+                    value: isDarkMode,
+                    onChanged: (value) {
+                      ref.read(themeProvider.notifier).toggleTheme(value);
+                    },
+                    activeThumbColor: colorScheme.primary,
+                    activeTrackColor: colorScheme.primary.withValues(
+                      alpha: 0.2,
+                    ),
+                    inactiveThumbColor: theme.scaffoldBackgroundColor,
+                    inactiveTrackColor: theme.dividerColor,
+                  ),
                 ),
                 Divider(
                   height: 1,
@@ -347,6 +364,33 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                   },
                 ),
               ],
+            ),
+          ),
+          const SizedBox(height: 24),
+          GestureDetector(
+            onTap: _handleLogout,
+            child: Container(
+              width: double.infinity,
+              padding: const EdgeInsets.symmetric(vertical: 14),
+              decoration: BoxDecoration(
+                color: colorScheme.error.withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(20),
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.logout, color: colorScheme.error, size: 18),
+                  const SizedBox(width: 8),
+                  Text(
+                    'Logout',
+                    style: TextStyle(
+                      color: colorScheme.error,
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
         ],
@@ -407,7 +451,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
     required String title,
     Widget? trailing,
     bool showChevron = false,
-    required VoidCallback onTap,
+    VoidCallback? onTap,
   }) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
@@ -438,7 +482,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                 ),
               ),
             ),
-            ?trailing,
+            if (trailing != null) trailing,
             if (showChevron)
               Icon(
                 Icons.chevron_right,
