@@ -156,22 +156,20 @@ class _TasksViewState extends State<TasksView> {
               buildDefaultDragHandles: false,
               physics: const NeverScrollableScrollPhysics(),
               itemCount: filteredTasks.length,
-              onReorder: (int oldIndex, int newIndex) {
+              onReorderItem: (int oldIndex, int newIndex) {
                 setState(() {
-                  if (oldIndex < newIndex) {
-                    newIndex -= 1;
-                  }
-                  final TaskModel item = filteredTasks.removeAt(oldIndex);
-                  final sourceGlobalIndex = globalTasks.indexOf(item);
-                  globalTasks.removeAt(sourceGlobalIndex);
+                  final reorderedTasks = List<TaskModel>.from(filteredTasks);
+                  final item = reorderedTasks.removeAt(oldIndex);
 
-                  if (newIndex >= filteredTasks.length) {
-                    globalTasks.add(item);
+                  if (newIndex >= reorderedTasks.length) {
+                    reorderedTasks.add(item);
                   } else {
-                    final targetTask = filteredTasks[newIndex];
-                    final targetGlobalIndex = globalTasks.indexOf(targetTask);
-                    globalTasks.insert(targetGlobalIndex, item);
+                    reorderedTasks.insert(newIndex, item);
                   }
+
+                  globalTasks
+                    ..clear()
+                    ..addAll(reorderedTasks);
                 });
               },
               itemBuilder: (context, index) {

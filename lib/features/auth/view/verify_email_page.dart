@@ -78,8 +78,11 @@ class _VerifyEmailPageState extends ConsumerState<VerifyEmailPage> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
     return Scaffold(
-      backgroundColor: const Color(0xFFEBF4FC),
+      backgroundColor: theme.scaffoldBackgroundColor,
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 16.0),
@@ -91,16 +94,12 @@ class _VerifyEmailPageState extends ConsumerState<VerifyEmailPage> {
                 child: Container(
                   width: 40,
                   height: 40,
-                  decoration: const BoxDecoration(
-                    color: Colors.white,
+                  decoration: BoxDecoration(
+                    color: theme.cardColor,
                     shape: BoxShape.circle,
                   ),
                   child: IconButton(
-                    icon: const Icon(
-                      Icons.arrow_back,
-                      color: Color(0xFF1D2F44),
-                      size: 18,
-                    ),
+                    icon: const Icon(Icons.arrow_back, size: 18),
                     onPressed: () => Navigator.pop(context),
                   ),
                 ),
@@ -110,31 +109,31 @@ class _VerifyEmailPageState extends ConsumerState<VerifyEmailPage> {
                 width: 100,
                 height: 100,
                 decoration: BoxDecoration(
-                  color: const Color(0xFF67ADF6).withValues(alpha: 0.3),
+                  color: colorScheme.primary.withValues(alpha: 0.18),
                   shape: BoxShape.circle,
                 ),
-                child: const Icon(
+                child: Icon(
                   Icons.mark_email_unread_outlined,
                   size: 50,
-                  color: Color(0xFF67ADF6),
+                  color: colorScheme.primary,
                 ),
               ),
               const SizedBox(height: 32),
-              const Text(
+              Text(
                 'Verify your email',
                 style: TextStyle(
                   fontSize: 22,
                   fontWeight: FontWeight.w700,
-                  color: Color(0xFF1D2F44),
+                  color: colorScheme.onSurface,
                 ),
               ),
               const SizedBox(height: 16),
-              const Text(
+              Text(
                 'We have sent a verification email to your address. Please check your inbox and click the link to verify your account.',
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: 13,
-                  color: Color(0xFF6B7280),
+                  color: colorScheme.onSurfaceVariant,
                   height: 1.5,
                 ),
               ),
@@ -147,8 +146,8 @@ class _VerifyEmailPageState extends ConsumerState<VerifyEmailPage> {
                       : _checkVerification,
                   style: ElevatedButton.styleFrom(
                     padding: const EdgeInsets.symmetric(vertical: 14),
-                    backgroundColor: const Color(0xFF67ADF6),
-                    foregroundColor: Colors.white,
+                    backgroundColor: colorScheme.primary,
+                    foregroundColor: colorScheme.onPrimary,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(16),
                     ),
@@ -179,8 +178,8 @@ class _VerifyEmailPageState extends ConsumerState<VerifyEmailPage> {
                   onPressed: _isResending ? null : _resendEmail,
                   style: OutlinedButton.styleFrom(
                     padding: const EdgeInsets.symmetric(vertical: 14),
-                    foregroundColor: const Color(0xFF67ADF6),
-                    side: const BorderSide(color: Color(0xFF67ADF6)),
+                    foregroundColor: colorScheme.primary,
+                    side: BorderSide(color: colorScheme.primary),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(16),
                     ),

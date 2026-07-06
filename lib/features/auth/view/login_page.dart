@@ -86,10 +86,15 @@ class _LoginPageState extends ConsumerState<LoginPage> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    final onSurfaceMuted =
+        theme.textTheme.bodySmall?.color ?? colorScheme.onSurfaceVariant;
+
     return Stack(
       children: [
         Scaffold(
-          backgroundColor: const Color(0xFFEBF4FC),
+          backgroundColor: theme.scaffoldBackgroundColor,
           body: SafeArea(
             child: SingleChildScrollView(
               padding: const EdgeInsets.symmetric(
@@ -105,13 +110,11 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                       width: 48,
                       height: 48,
                       decoration: BoxDecoration(
-                        color: const Color(0xFF67ADF6),
+                        color: colorScheme.primary,
                         shape: BoxShape.circle,
                         boxShadow: [
                           BoxShadow(
-                            color: const Color(
-                              0xFF67ADF6,
-                            ).withValues(alpha: 0.3),
+                            color: colorScheme.primary.withValues(alpha: 0.3),
                             blurRadius: 10,
                             offset: const Offset(0, 4),
                           ),
@@ -134,13 +137,12 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                       style: TextStyle(
                         fontSize: 22,
                         fontWeight: FontWeight.w600,
-                        color: Color(0xFF1D2F44),
                       ),
                     ),
                     const SizedBox(height: 6),
-                    const Text(
+                    Text(
                       'Sign in to continue your study journey.',
-                      style: TextStyle(fontSize: 13, color: Color(0xFF6B7280)),
+                      style: TextStyle(fontSize: 13, color: onSurfaceMuted),
                     ),
                     const SizedBox(height: 32),
                     const Text(
@@ -148,7 +150,6 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                       style: TextStyle(
                         fontSize: 13,
                         fontWeight: FontWeight.w500,
-                        color: Color(0xFF1D2F44),
                       ),
                     ),
                     const SizedBox(height: 6),
@@ -164,7 +165,6 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                       style: TextStyle(
                         fontSize: 13,
                         fontWeight: FontWeight.w500,
-                        color: Color(0xFF1D2F44),
                       ),
                     ),
                     const SizedBox(height: 6),
@@ -191,7 +191,6 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                         child: const Text(
                           'Forgot password?',
                           style: TextStyle(
-                            color: Color(0xFF67ADF6),
                             fontWeight: FontWeight.w600,
                             fontSize: 13,
                           ),
@@ -205,8 +204,8 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                         onPressed: _isLoading ? null : _login,
                         style: ElevatedButton.styleFrom(
                           padding: const EdgeInsets.symmetric(vertical: 14),
-                          backgroundColor: const Color(0xFF67ADF6),
-                          foregroundColor: Colors.white,
+                          backgroundColor: colorScheme.primary,
+                          foregroundColor: colorScheme.onPrimary,
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(16),
                           ),
@@ -227,10 +226,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                       children: [
                         const Text(
                           'Don\'t have an account?',
-                          style: TextStyle(
-                            color: Color(0xFF6B7280),
-                            fontSize: 13,
-                          ),
+                          style: TextStyle(fontSize: 13),
                         ),
                         const SizedBox(width: 4),
                         GestureDetector(
@@ -243,7 +239,6 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                           child: const Text(
                             'Sign Up',
                             style: TextStyle(
-                              color: Color(0xFF67ADF6),
                               fontWeight: FontWeight.bold,
                               fontSize: 13,
                             ),

@@ -72,10 +72,15 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    final onSurfaceMuted =
+        theme.textTheme.bodySmall?.color ?? colorScheme.onSurfaceVariant;
+
     return Stack(
       children: [
         Scaffold(
-          backgroundColor: const Color(0xFFEBF4FC),
+          backgroundColor: theme.scaffoldBackgroundColor,
           body: SafeArea(
             child: SingleChildScrollView(
               padding: const EdgeInsets.symmetric(
@@ -90,16 +95,12 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
                     Container(
                       width: 40,
                       height: 40,
-                      decoration: const BoxDecoration(
-                        color: Colors.white,
+                      decoration: BoxDecoration(
+                        color: theme.cardColor,
                         shape: BoxShape.circle,
                       ),
                       child: IconButton(
-                        icon: const Icon(
-                          Icons.arrow_back,
-                          color: Color(0xFF1D2F44),
-                          size: 18,
-                        ),
+                        icon: const Icon(Icons.arrow_back, size: 18),
                         onPressed: () => Navigator.pop(context),
                       ),
                     ),
@@ -109,13 +110,12 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
                       style: TextStyle(
                         fontSize: 22,
                         fontWeight: FontWeight.w700,
-                        color: Color(0xFF1D2F44),
                       ),
                     ),
                     const SizedBox(height: 4),
-                    const Text(
+                    Text(
                       'Start organizing your study today.',
-                      style: TextStyle(fontSize: 12, color: Color(0xFF6B7280)),
+                      style: TextStyle(fontSize: 12, color: onSurfaceMuted),
                     ),
                     const SizedBox(height: 24),
                     const Text(
@@ -123,7 +123,6 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
                       style: TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.w500,
-                        color: Color(0xFF1D2F44),
                       ),
                     ),
                     const SizedBox(height: 6),
@@ -139,7 +138,6 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
                       style: TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.w500,
-                        color: Color(0xFF1D2F44),
                       ),
                     ),
                     const SizedBox(height: 6),
@@ -155,7 +153,6 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
                       style: TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.w500,
-                        color: Color(0xFF1D2F44),
                       ),
                     ),
                     const SizedBox(height: 6),
@@ -171,7 +168,6 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
                       style: TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.w500,
-                        color: Color(0xFF1D2F44),
                       ),
                     ),
                     const SizedBox(height: 6),
@@ -191,8 +187,8 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
                         onPressed: _isLoading ? null : _register,
                         style: ElevatedButton.styleFrom(
                           padding: const EdgeInsets.symmetric(vertical: 14),
-                          backgroundColor: const Color(0xFF67ADF6),
-                          foregroundColor: Colors.white,
+                          backgroundColor: colorScheme.primary,
+                          foregroundColor: colorScheme.onPrimary,
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(16),
                           ),
@@ -213,10 +209,7 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
                       children: [
                         const Text(
                           'Already have an account?',
-                          style: TextStyle(
-                            color: Color(0xFF6B7280),
-                            fontSize: 12,
-                          ),
+                          style: TextStyle(fontSize: 12),
                         ),
                         const SizedBox(width: 4),
                         GestureDetector(
@@ -224,7 +217,6 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
                           child: const Text(
                             'Sign In',
                             style: TextStyle(
-                              color: Color(0xFF67ADF6),
                               fontWeight: FontWeight.bold,
                               fontSize: 12,
                             ),

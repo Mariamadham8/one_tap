@@ -1,7 +1,10 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:one_tap/features/auth/view/login_page.dart';
+import 'package:one_tap/features/auth/view/verify_email_page.dart';
+import 'package:one_tap/features/home/home_page.dart';
 
 class OnboardingPageModel {
   final String lottiePath;
@@ -76,24 +79,48 @@ class _OnboardingPageState extends State<OnboardingPage> {
     await prefs.setBool('hasSeenOnboarding', true);
 
     if (!mounted) return;
+
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (_) => const LoginPage()),
+      );
+      return;
+    }
+
+    if (!user.emailVerified) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (_) => const VerifyEmailPage()),
+      );
+      return;
+    }
+
     Navigator.pushReplacement(
       context,
-      MaterialPageRoute(builder: (_) => const LoginPage()),
+      MaterialPageRoute(builder: (_) => const HomePage()),
     );
   }
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
     return Scaffold(
       body: Container(
         width: double.infinity,
         height: double.infinity,
-        decoration: const BoxDecoration(
+        decoration: BoxDecoration(
           gradient: RadialGradient(
             center: Alignment.topCenter,
             radius: 1.5,
-            colors: [Color(0xFFEAF3FE), Colors.white],
-            stops: [0.0, 0.7],
+            colors: [
+              colorScheme.primary.withValues(alpha: 0.14),
+              theme.scaffoldBackgroundColor,
+            ],
+            stops: const [0.0, 0.7],
           ),
         ),
         child: SafeArea(
@@ -110,7 +137,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
                   },
                   itemCount: _pages.length,
                   itemBuilder: (context, index) {
-                    return _buildPageContent(_pages[index]);
+                    return _buildPageContent(context, _pages[index]);
                   },
                 ),
               ),
@@ -123,6 +150,9 @@ class _OnboardingPageState extends State<OnboardingPage> {
   }
 
   Widget _buildTopBar() {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 16.0),
       child: Row(
@@ -133,25 +163,26 @@ class _OnboardingPageState extends State<OnboardingPage> {
               Container(
                 width: 36,
                 height: 36,
-                decoration: const BoxDecoration(
-                  color: Color(0xFF65AAEA),
+                decoration: BoxDecoration(
+                  color: colorScheme.primary,
                   shape: BoxShape.circle,
                 ),
                 alignment: Alignment.center,
-                child: const Text(
+                child: Text(
                   'S',
                   style: TextStyle(
-                    color: Colors.white,
+                    color: colorScheme.onPrimary,
                     fontWeight: FontWeight.bold,
                     fontSize: 18,
                   ),
                 ),
               ),
               const SizedBox(width: 12),
-              const Text(
+              Text(
                 'Study Mate',
                 style: TextStyle(
-                  color: Color(0xFF1C274C),
+                  color:
+                      theme.textTheme.bodyLarge?.color ?? colorScheme.onSurface,
                   fontWeight: FontWeight.w700,
                   fontSize: 16,
                 ),
@@ -163,10 +194,12 @@ class _OnboardingPageState extends State<OnboardingPage> {
             duration: const Duration(milliseconds: 300),
             child: TextButton(
               onPressed: _currentPage == _pages.length - 1 ? null : _goToLogin,
-              child: const Text(
+              child: Text(
                 'Skip',
                 style: TextStyle(
-                  color: Color(0xFF7B93AF),
+                  color:
+                      theme.textTheme.bodySmall?.color ??
+                      colorScheme.onSurfaceVariant,
                   fontSize: 16,
                   fontWeight: FontWeight.w500,
                 ),
@@ -178,45 +211,75 @@ class _OnboardingPageState extends State<OnboardingPage> {
     );
   }
 
-  Widget _buildPageContent(OnboardingPageModel page) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 24.0),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          _buildCenterCard(page.lottiePath),
-          const SizedBox(height: 60),
-          Text(
-            page.title,
-            style: const TextStyle(
-              fontSize: 28,
-              fontWeight: FontWeight.w800,
-              color: Color(0xFF1C274C),
-              letterSpacing: -0.5,
-            ),
-            textAlign: TextAlign.center,
-          ),
-          const SizedBox(height: 16),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0),
-            child: Text(
-              page.description,
-              style: const TextStyle(
-                fontSize: 16,
-                height: 1.5,
-                color: Color(0xFF7B93AF),
-                fontWeight: FontWeight.w400,
+  Widget _buildPageContent(BuildContext context, OnboardingPageModel page) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final isCompactHeight = constraints.maxHeight < 650;
+        final cardSize = isCompactHeight ? 240.0 : 300.0;
+        final topSpacing = isCompactHeight ? 28.0 : 60.0;
+        final titleSize = isCompactHeight ? 24.0 : 28.0;
+        final descriptionSize = isCompactHeight ? 14.0 : 16.0;
+
+        return SingleChildScrollView(
+          physics: const BouncingScrollPhysics(),
+          padding: const EdgeInsets.symmetric(horizontal: 24.0),
+          child: ConstrainedBox(
+            constraints: BoxConstraints(minHeight: constraints.maxHeight),
+            child: IntrinsicHeight(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  _buildCenterCard(context, page.lottiePath, cardSize),
+                  SizedBox(height: topSpacing),
+                  Text(
+                    page.title,
+                    style: TextStyle(
+                      fontSize: titleSize,
+                      fontWeight: FontWeight.w800,
+                      color:
+                          theme.textTheme.bodyLarge?.color ??
+                          colorScheme.onSurface,
+                      letterSpacing: -0.5,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 16),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                    child: Text(
+                      page.description,
+                      style: TextStyle(
+                        fontSize: descriptionSize,
+                        height: 1.5,
+                        color:
+                            theme.textTheme.bodySmall?.color ??
+                            colorScheme.onSurfaceVariant,
+                        fontWeight: FontWeight.w400,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+                ],
               ),
-              textAlign: TextAlign.center,
             ),
           ),
-          const SizedBox(height: 20),
-        ],
-      ),
+        );
+      },
     );
   }
 
-  Widget _buildCenterCard(String lottiePath) {
+  Widget _buildCenterCard(
+    BuildContext context,
+    String lottiePath,
+    double size,
+  ) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
     return Stack(
       alignment: Alignment.center,
       clipBehavior: Clip.none,
@@ -228,8 +291,8 @@ class _OnboardingPageState extends State<OnboardingPage> {
           child: Container(
             width: 70,
             height: 70,
-            decoration: const BoxDecoration(
-              color: Color(0xFFE6F2FF),
+            decoration: BoxDecoration(
+              color: colorScheme.primary.withValues(alpha: 0.12),
               shape: BoxShape.circle,
             ),
           ),
@@ -241,22 +304,22 @@ class _OnboardingPageState extends State<OnboardingPage> {
           child: Container(
             width: 80,
             height: 80,
-            decoration: const BoxDecoration(
-              color: Color(0xFFCBE4FF),
+            decoration: BoxDecoration(
+              color: colorScheme.primary.withValues(alpha: 0.2),
               shape: BoxShape.circle,
             ),
           ),
         ),
         // Main Card
         Container(
-          width: 300,
-          height: 300,
+          width: size,
+          height: size,
           decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(40),
+            color: theme.cardColor,
+            borderRadius: BorderRadius.circular(size * 0.13),
             boxShadow: [
               BoxShadow(
-                color: const Color(0xFF65AAEA).withValues(alpha: 0.08),
+                color: colorScheme.primary.withValues(alpha: 0.08),
                 blurRadius: 40,
                 offset: const Offset(0, 15),
               ),
@@ -264,7 +327,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
           ),
           child: Center(
             child: Padding(
-              padding: const EdgeInsets.all(40.0),
+              padding: EdgeInsets.all(size * 0.13),
               child: Lottie.asset(
                 lottiePath,
                 fit: BoxFit.contain,
@@ -286,7 +349,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: theme.cardColor,
               borderRadius: BorderRadius.circular(20),
               boxShadow: [
                 BoxShadow(
@@ -302,18 +365,20 @@ class _OnboardingPageState extends State<OnboardingPage> {
                 Container(
                   width: 8,
                   height: 8,
-                  decoration: const BoxDecoration(
-                    color: Color(0xFF3B82F6),
+                  decoration: BoxDecoration(
+                    color: colorScheme.primary,
                     shape: BoxShape.circle,
                   ),
                 ),
                 const SizedBox(width: 6),
-                const Text(
+                Text(
                   '+12 today',
                   style: TextStyle(
                     fontSize: 12,
                     fontWeight: FontWeight.w700,
-                    color: Color(0xFF1C274C),
+                    color:
+                        theme.textTheme.bodyLarge?.color ??
+                        colorScheme.onSurface,
                   ),
                 ),
               ],
@@ -327,7 +392,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: theme.cardColor,
               borderRadius: BorderRadius.circular(20),
               boxShadow: [
                 BoxShadow(
@@ -337,7 +402,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
                 ),
               ],
             ),
-            child: const Row(
+            child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
                 Text('🔥', style: TextStyle(fontSize: 14)),
@@ -347,7 +412,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
                   style: TextStyle(
                     fontSize: 12,
                     fontWeight: FontWeight.w700,
-                    color: Color(0xFF3B82F6),
+                    color: colorScheme.primary,
                   ),
                 ),
               ],
@@ -360,12 +425,12 @@ class _OnboardingPageState extends State<OnboardingPage> {
 
   Widget _buildBottomControls() {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(24, 0, 24, 32),
+      padding: const EdgeInsets.fromLTRB(24, 0, 24, 24),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
           _buildPageIndicator(),
-          const SizedBox(height: 32),
+          const SizedBox(height: 20),
           _buildButtons(),
         ],
       ),
@@ -373,6 +438,9 @@ class _OnboardingPageState extends State<OnboardingPage> {
   }
 
   Widget _buildPageIndicator() {
+    final colorScheme = Theme.of(context).colorScheme;
+    final theme = Theme.of(context);
+
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: List.generate(_pages.length, (index) {
@@ -383,7 +451,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
           height: 8,
           width: isActive ? 32 : 8,
           decoration: BoxDecoration(
-            color: isActive ? const Color(0xFF65AAEA) : const Color(0xFFE2E8F0),
+            color: isActive ? colorScheme.primary : theme.dividerColor,
             borderRadius: BorderRadius.circular(4),
           ),
         );
@@ -392,31 +460,33 @@ class _OnboardingPageState extends State<OnboardingPage> {
   }
 
   Widget _buildButtons() {
+    final colorScheme = Theme.of(context).colorScheme;
+
     if (_currentPage == 0) {
       // Single button for first page
       return ElevatedButton(
         onPressed: _nextPage,
         style: ElevatedButton.styleFrom(
-          backgroundColor: const Color(0xFF65AAEA),
+          backgroundColor: colorScheme.primary,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(30),
           ),
           minimumSize: const Size(double.infinity, 56),
           elevation: 0,
         ),
-        child: const Row(
+        child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Text(
               "Next",
               style: TextStyle(
-                color: Colors.white,
+                color: colorScheme.onPrimary,
                 fontSize: 16,
                 fontWeight: FontWeight.w600,
               ),
             ),
             SizedBox(width: 8),
-            Icon(Icons.arrow_forward, color: Colors.white, size: 20),
+            Icon(Icons.arrow_forward, color: colorScheme.onPrimary, size: 20),
           ],
         ),
       );
@@ -427,16 +497,16 @@ class _OnboardingPageState extends State<OnboardingPage> {
         TextButton(
           onPressed: _prevPage,
           style: TextButton.styleFrom(
-            backgroundColor: const Color(0xFFF0F6FF),
+            backgroundColor: colorScheme.primary.withValues(alpha: 0.12),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(28),
             ),
             minimumSize: const Size(100, 56),
           ),
-          child: const Text(
+          child: Text(
             "Back",
             style: TextStyle(
-              color: Color(0xFF65AAEA),
+              color: colorScheme.primary,
               fontSize: 16,
               fontWeight: FontWeight.w600,
             ),
@@ -451,7 +521,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
                     height: 56,
                     decoration: BoxDecoration(
                       border: Border.all(
-                        color: const Color(0xFF65AAEA),
+                        color: colorScheme.primary,
                         width: 1.5,
                       ),
                       borderRadius: BorderRadius.circular(32),
@@ -459,17 +529,17 @@ class _OnboardingPageState extends State<OnboardingPage> {
                     padding: const EdgeInsets.all(3),
                     child: Container(
                       decoration: BoxDecoration(
-                        color: const Color(0xFF65AAEA),
+                        color: colorScheme.primary,
                         borderRadius: BorderRadius.circular(28),
                       ),
                       alignment: Alignment.center,
-                      child: const Row(
+                      child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Text(
                             "Get Started",
                             style: TextStyle(
-                              color: Colors.white,
+                              color: colorScheme.onPrimary,
                               fontSize: 16,
                               fontWeight: FontWeight.w600,
                             ),
@@ -477,7 +547,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
                           SizedBox(width: 8),
                           Icon(
                             Icons.arrow_forward,
-                            color: Colors.white,
+                            color: colorScheme.onPrimary,
                             size: 20,
                           ),
                         ],
@@ -488,26 +558,30 @@ class _OnboardingPageState extends State<OnboardingPage> {
               : ElevatedButton(
                   onPressed: _nextPage,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF65AAEA),
+                    backgroundColor: colorScheme.primary,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(30),
                     ),
                     minimumSize: const Size(double.infinity, 56),
                     elevation: 0,
                   ),
-                  child: const Row(
+                  child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Text(
                         "Next",
                         style: TextStyle(
-                          color: Colors.white,
+                          color: colorScheme.onPrimary,
                           fontSize: 16,
                           fontWeight: FontWeight.w600,
                         ),
                       ),
                       SizedBox(width: 8),
-                      Icon(Icons.arrow_forward, color: Colors.white, size: 20),
+                      Icon(
+                        Icons.arrow_forward,
+                        color: colorScheme.onPrimary,
+                        size: 20,
+                      ),
                     ],
                   ),
                 ),

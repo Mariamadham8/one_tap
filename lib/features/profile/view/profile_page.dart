@@ -37,10 +37,10 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
     });
   }
 
-  void _saveProfile() {
+  Future<void> _saveProfile() async {
     final newName = _nameController.text.trim();
     if (newName.isNotEmpty) {
-      ref.read(userNameProvider.notifier).updateName(newName);
+      await ref.read(userNameProvider.notifier).updateName(newName);
     }
     setState(() {
       _isEditingMode = false;
@@ -150,20 +150,42 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             if (_isEditingMode)
-                              TextFormField(
+                              TextField(
                                 controller: _nameController,
+                                autofocus: true,
+                                textInputAction: TextInputAction.done,
                                 style: TextStyle(
                                   fontSize: 16,
                                   fontWeight: FontWeight.bold,
                                   color: theme.textTheme.bodyLarge!.color!,
                                 ),
-                                decoration: const InputDecoration(
+                                decoration: InputDecoration(
                                   isDense: true,
-                                  contentPadding: EdgeInsets.symmetric(
-                                    vertical: 4,
-                                    horizontal: 0,
+                                  filled: true,
+                                  fillColor: theme.cardColor,
+                                  contentPadding: const EdgeInsets.symmetric(
+                                    horizontal: 12,
+                                    vertical: 10,
                                   ),
-                                  border: UnderlineInputBorder(),
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                    borderSide: BorderSide(
+                                      color: theme.dividerColor,
+                                    ),
+                                  ),
+                                  enabledBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                    borderSide: BorderSide(
+                                      color: theme.dividerColor,
+                                    ),
+                                  ),
+                                  focusedBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                    borderSide: BorderSide(
+                                      color: colorScheme.primary,
+                                      width: 1.5,
+                                    ),
+                                  ),
                                 ),
                               )
                             else

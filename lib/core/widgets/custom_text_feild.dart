@@ -27,6 +27,9 @@ class _CustomTextFieldState extends State<CustomTextField> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
+    final textColor = theme.textTheme.bodyLarge?.color ?? colorScheme.onSurface;
+    final hintColor =
+        theme.textTheme.bodySmall?.color ?? colorScheme.onSurfaceVariant;
 
     return TextFormField(
       controller: widget.controller,
@@ -34,26 +37,20 @@ class _CustomTextFieldState extends State<CustomTextField> {
       validator: widget.validator,
       obscureText: widget.isPassword ? _obscure : false,
       autovalidateMode: AutovalidateMode.onUserInteraction,
-      style: const TextStyle(
-        color: Color(0xFF1E293B),
-        fontSize: 13,
-      ),
+      style: TextStyle(color: textColor, fontSize: 13),
       cursorColor: colorScheme.primary,
       decoration: InputDecoration(
         hintText: widget.hint,
-        hintStyle: const TextStyle(
-          color: Colors.grey,
-          fontSize: 13,
-        ),
+        hintStyle: TextStyle(color: hintColor, fontSize: 13),
         filled: true,
-        fillColor: Colors.white,
+        fillColor: theme.cardColor,
         suffixIcon: widget.isPassword
             ? IconButton(
                 icon: Icon(
                   _obscure
                       ? Icons.visibility_off_outlined
                       : Icons.visibility_outlined,
-                  color: theme.textTheme.bodySmall!.color,
+                  color: hintColor,
                   size: 20,
                 ),
                 onPressed: () => setState(() => _obscure = !_obscure),

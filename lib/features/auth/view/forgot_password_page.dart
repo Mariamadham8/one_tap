@@ -65,10 +65,15 @@ class _ForgotPasswordPageState extends ConsumerState<ForgotPasswordPage> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    final onSurfaceMuted =
+        theme.textTheme.bodySmall?.color ?? colorScheme.onSurfaceVariant;
+
     return Stack(
       children: [
         Scaffold(
-          backgroundColor: const Color(0xFFEBF4FC),
+          backgroundColor: theme.scaffoldBackgroundColor,
           body: SafeArea(
             child: SingleChildScrollView(
               padding: const EdgeInsets.symmetric(
@@ -83,16 +88,12 @@ class _ForgotPasswordPageState extends ConsumerState<ForgotPasswordPage> {
                     Container(
                       width: 40,
                       height: 40,
-                      decoration: const BoxDecoration(
-                        color: Colors.white,
+                      decoration: BoxDecoration(
+                        color: theme.cardColor,
                         shape: BoxShape.circle,
                       ),
                       child: IconButton(
-                        icon: const Icon(
-                          Icons.arrow_back,
-                          color: Color(0xFF1D2F44),
-                          size: 18,
-                        ),
+                        icon: const Icon(Icons.arrow_back, size: 18),
                         onPressed: () => Navigator.pop(context),
                       ),
                     ),
@@ -102,13 +103,12 @@ class _ForgotPasswordPageState extends ConsumerState<ForgotPasswordPage> {
                       style: TextStyle(
                         fontSize: 22,
                         fontWeight: FontWeight.w700,
-                        color: Color(0xFF1D2F44),
                       ),
                     ),
                     const SizedBox(height: 4),
-                    const Text(
+                    Text(
                       'Enter your email address and we will send you a link to reset your password.',
-                      style: TextStyle(fontSize: 12, color: Color(0xFF6B7280)),
+                      style: TextStyle(fontSize: 12, color: onSurfaceMuted),
                     ),
                     const SizedBox(height: 24),
                     const Text(
@@ -116,7 +116,6 @@ class _ForgotPasswordPageState extends ConsumerState<ForgotPasswordPage> {
                       style: TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.w500,
-                        color: Color(0xFF1D2F44),
                       ),
                     ),
                     const SizedBox(height: 6),
@@ -133,8 +132,8 @@ class _ForgotPasswordPageState extends ConsumerState<ForgotPasswordPage> {
                         onPressed: _isLoading ? null : _resetPassword,
                         style: ElevatedButton.styleFrom(
                           padding: const EdgeInsets.symmetric(vertical: 14),
-                          backgroundColor: const Color(0xFF67ADF6),
-                          foregroundColor: Colors.white,
+                          backgroundColor: colorScheme.primary,
+                          foregroundColor: colorScheme.onPrimary,
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(16),
                           ),
@@ -158,9 +157,7 @@ class _ForgotPasswordPageState extends ConsumerState<ForgotPasswordPage> {
         if (_isLoading)
           Container(
             color: Colors.black.withValues(alpha: 0.3),
-            child: const Center(
-              child: CircularProgressIndicator(color: Color(0xFF67ADF6)),
-            ),
+            child: const Center(child: CircularProgressIndicator()),
           ),
       ],
     );
