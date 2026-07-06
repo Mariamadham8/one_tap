@@ -64,29 +64,13 @@ class _SplashPageState extends State<SplashPage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            // Using a simple icon for the splash logo
-            const Icon(Icons.school, size: 100, color: Colors.white),
-            const SizedBox(height: 14),
-            const Text(
-              'Study Planner',
-              style: TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.w500,
-                color: Colors.white,
-                letterSpacing: 1.5,
-              ),
-            ),
-            const SizedBox(height: 10),
-            Text(
-              'Plan • Study • Excel',
-              style: TextStyle(
-                fontSize: 14,
-                fontStyle: FontStyle.italic,
-                color: Colors.white.withValues(alpha: 0.8),
-              ),
+            Image.asset(
+              'assets/images/Splash.png',
+              width: 260,
+              height: 260,
+              fit: BoxFit.contain,
             ),
             const SizedBox(height: 26),
-            // Loading indicator
             const CircularProgressIndicator(
               valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
             ),
