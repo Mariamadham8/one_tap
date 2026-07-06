@@ -14,47 +14,47 @@ class _ContactUsViewState extends State<ContactUsView>
 
   final List<Map<String, dynamic>> team = [
     {
-      "name": "Osama Elkayyal",
-      "role": "Flutter Developer",
-      "email": "Osama.Elkayyal@gmail.com",
-      "image": "assets/team/1.jpeg",
-      "github": "https://github.com/Osama7amed04",
-      "linkedin": "https://www.linkedin.com/in/os-7k",
-      "portfolio": "https://os-7-k.web.app",
-    },
-    {
       "name": "Ahmed Elkhamisy",
       "role": "Flutter Developer",
       "email": "ahmedelkhamisy40@gmail.com",
-      "image": "assets/team/2.jpg",
+      "image": "assets/team/1.jpg",
       "github": "https://github.com/A7medElKhamisy",
       "linkedin": "https://www.linkedin.com/in/ahmed-elkhamisy",
-      "portfolio": "",
+      "portfolio": "https://portofolio-maker.vercel.app/a7medel5amisy",
     },
     {
-      "name": "Abdelrahman Eltahrany",
+      "name": "Abdelrahman Essam",
       "role": "Flutter Developer",
-      "email": "abdsalama2020@gmail.com",
+      "email": "eabdo7425@gmail.com",
+      "image": "assets/team/2.jpeg",
+      "github": "https://github.com/abdelrahaman293",
+      "linkedin": "www.linkedin.com/in/abdelrahman-esam-",
+      "portfolio": "https://abdoessam.lovable.app/",
+    },
+    {
+      "name": "Mahmoud Mohsen",
+      "role": "Flutter Developer",
+      "email": "mahmoud5mohsen5@gmail.com",
       "image": "assets/team/3.jpeg",
-      "github": "https://github.com/abdsalama",
-      "linkedin": "https://www.linkedin.com/in/abd-elrahman-el-tahrany",
+      "github": "https://github.com/Mahmoud-Mohsen-1",
+      "linkedin": "https://www.linkedin.com/in/mahmoud5mohsen5",
       "portfolio": "",
     },
     {
-      "name": "Fedaa Mohammed",
-      "role": "Embedded Engineer",
-      "email": "kanishey@gmail.com",
+      "name": "Ahmed khalid",
+      "role": "Flutter Developer",
+      "email": "Ahmedelzmar111@gmail.com",
       "image": "assets/team/4.jpeg",
-      "github": "https://github.com/fedokanishey",
-      "linkedin": "https://www.linkedin.com/in/fedaamohammed",
+      "github": "https://github.com/Ahmedelzmar",
+      "linkedin": "https://www.linkedin.com/in/ahmed-khalid-elzmar-2640b7358",
       "portfolio": "",
     },
     {
-      "name": "Ahmed Elsharabasy",
-      "role": "Backend Nodejs Developer",
-      "email": "ahmedelsharabasy2004@gmail.com",
-      "image": "assets/team/5.HEIC",
-      "github": "https://github.com/Ahmed-Sharabasy",
+      "name": "Mahmoud Weal",
+      "role": "Flutter Developer",
+      "email": "Mahmoodwael888@gmail.com",
+      "image": "assets/team/5.jpeg",
+      "github": "https://github.com/MahmoudwaelElbadrawy?tab=repositories",
       "linkedin": "https://www.linkedin.com/in/ahmedelsharabasy",
       "portfolio": "",
     },
@@ -93,7 +93,10 @@ class _ContactUsViewState extends State<ContactUsView>
         backgroundColor: theme.appBarTheme.backgroundColor,
         elevation: 0,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: theme.appBarTheme.foregroundColor),
+          icon: Icon(
+            Icons.arrow_back,
+            color: theme.appBarTheme.foregroundColor,
+          ),
           onPressed: () => Navigator.pop(context),
         ),
       ),
@@ -131,7 +134,7 @@ class _ContactUsViewState extends State<ContactUsView>
                 ),
                 const SizedBox(height: 10),
                 Text(
-                  "We are students of the Faculty of Computers and Artificial Intelligence at Damietta University, majoring in Computer Science. This project was developed as part of our graduation requirements, where we applied the knowledge and skills we acquired throughout our studies in a practical form. It was carried out under academic supervision, with a focus on delivering an effective solution that reflects our academic and practical level.",
+                  "We are Digital Egypt Pioneers students in the fourth cohort, learning Flutter. We met through our graduation project and built this app together.",
                   style: TextStyle(
                     color: theme.textTheme.bodyMedium!.color,
                     fontSize: 12,
@@ -148,19 +151,16 @@ class _ContactUsViewState extends State<ContactUsView>
           ...List.generate(team.length, (index) {
             final member = team[index];
 
-            final animation = Tween<Offset>(
-              begin: const Offset(1, 0),
-              end: Offset.zero,
-            ).animate(
-              CurvedAnimation(
-                parent: _controller,
-                curve: Interval(
-                  (index * 0.1),
-                  1.0,
-                  curve: Curves.easeOut,
-                ),
-              ),
-            );
+            final animation =
+                Tween<Offset>(
+                  begin: const Offset(1, 0),
+                  end: Offset.zero,
+                ).animate(
+                  CurvedAnimation(
+                    parent: _controller,
+                    curve: Interval((index * 0.1), 1.0, curve: Curves.easeOut),
+                  ),
+                );
 
             return SlideTransition(
               position: animation,
