@@ -69,7 +69,7 @@ class _HomePageState extends State<HomePage> {
                   1,
                   Icons.check_box_outlined,
                   Icons.check_box,
-                  'Today',
+                  'Tasks',
                 ),
                 _buildNavItem(
                   context,

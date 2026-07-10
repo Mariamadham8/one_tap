@@ -93,6 +93,12 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
     return 'No email available';
   }
 
+  String get _displayInitial {
+    final name = ref.read(userNameProvider).trim();
+    if (name.isEmpty) return 'M';
+    return name.substring(0, 1).toUpperCase();
+  }
+
   @override
   Widget build(BuildContext context) {
     final displayName = ref.watch(userNameProvider);
@@ -149,7 +155,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                         ),
                         child: Center(
                           child: Text(
-                            'M',
+                            _displayInitial,
                             style: TextStyle(
                               color: colorScheme.onPrimary,
                               fontSize: 24,
