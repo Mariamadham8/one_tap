@@ -488,7 +488,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                 ),
               ),
             ),
-            if (trailing != null) trailing,
+            ?trailing,
             if (showChevron)
               Icon(
                 Icons.chevron_right,
